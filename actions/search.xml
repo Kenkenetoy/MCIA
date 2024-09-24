@@ -1,0 +1,187 @@
+<krpano>
+
+    <action name="search" scope="local" params="searched_place">
+        set(global.searched_place, %1);
+        searching(get(global.searched_place));
+        trace('changethumbs - searched_place: ', get(global.searched_place));
+	</action>
+
+    <action name="searching" params="searched_place">
+        <!-- Initialize the global array for thumbnails -->
+        def(global.thumbarray_forsearch, array);
+        set(thumbcount_forsearch, 0);
+
+        <!-- Set the place to search -->
+        set(place, get(searched_place));
+
+        <!-- Loop through all scenes and filter based on criteria -->
+        for(set(i, 0), i LT scene.count, inc(i),
+            if(isvalue(scene[get(i)].thumburl) AND 
+                scene[get(i)].skipthumb != true AND 
+                scene[get(i)].place == searched_place AND 
+                scene[get(i)].head == true,
+                set(thumbarray_forsearch[get(thumbcount_forsearch)], get(scene[get(i)]));
+                set(scene[get(i)].sceneindex, get(i));
+                set(scene[get(i)].thumbindex, get(thumbcount_forsearch));
+                inc(thumbcount_forsearch);
+                ,
+                trace('Scene does not match: ', scene[get(i)].name);
+            );
+        );
+
+        <!-- Check if there are any matched thumbnails -->
+        if(get(thumbcount_forsearch) GT 0,
+            trace('Searched scene: ', thumbcount_forsearch);
+            ,
+            trace('Nothing in search');
+        );
+
+
+
+
+        <!-- Handle thumbnail visibility based on settings -->
+        if(skin_settings.thumbs == false,
+            set(layer[skin_btn_thumbs].visible, false);
+            ,
+            copy(thumbwidth, skin_settings.thumbs_width);
+            copy(thumbheight, skin_settings.thumbs_height);
+            copy(thumbpadding, skin_settings.thumbs_padding);
+            copy(thumbcrop, skin_settings.thumbs_crop);
+
+            calc(thumbxoffset, thumbwidth + thumbpadding);
+            calc(thumbxcenter, thumbxoffset * 0.5);
+            calc(thumbbarwidth, thumbxoffset * thumbarray_forsearch.length + thumbpadding);
+            calc(thumbbarheight, thumbpadding + thumbheight + thumbpadding);
+
+            <!-- Add thumbnail layers -->
+            for(set(i, 0), i LT thumbarray_forsearch.length, inc(i),
+                copy(currentscene, thumbarray_forsearch[get(i)]);
+
+                calc(searched_place, 'skin_thumb_something_' + i);
+                calc(searched_place_capsule, 'skin_thumb_capsule_' + i);
+                <!-- thumbnail -->
+                addlayer(get(searched_place));
+                <!-- parent of all -->
+                <!-- must put the onclick function here -->
+                addlayer(get(searched_place_capsule));
+
+                trace('Creating thumbnail layer: ', get(searched_place));
+                trace('Creating thumbnail layer: ', get(searched_place_capsule));
+                
+                set(layer[get(searched_place_capsule)],
+                    parent=suggestion_search_layer,
+                    flowchildren='h',
+                    height='60',
+                    width=100%,
+                    bgcapture=true, 
+                    maskchildren=true, 
+                    visible=true, 
+                    capture=true, 
+                    childmargin='10', 
+                    linkedscene=get(currentscene.name),
+                    onclick='copy(layer[skin_thumbborder].parent, name); skin_loadscene(get(linkedscene), get(skin_settings.loadscene_blend)); force_UI_2();',
+                    type='container'
+                );
+
+                set(layer[get(searched_place)],
+                    url=get(currentscene.thumburl),
+                    keep=true, 
+                    parent=get(searched_place_capsule),
+                    bgroundedge=get(skin_settings.design_thumbborder_bgroundedge),
+                    align='left',
+                    edge='left',
+                    scale='.6',
+                    crop=get(thumbcrop),
+                    width=get(thumbwidth),
+                    height=get(thumbheight),
+                    x=calc(thumbpadding + i * thumbxoffset),
+                    y=get(thumbpadding),
+                );
+
+                trace('Thumbnail layer created: ', get(searched_place));
+                trace('Thumbnail layer parent: ', layer[get(searched_place)].parent);
+                trace('Thumbnail URL: ', get(currentscene.thumburl));
+
+                set(currentscene, 
+                    thumbx=calc(thumbpadding + i * thumbxoffset + thumbxcenter),
+                    thumby=get(thumbpadding)
+                );
+
+                if(skin_settings.tooltips_thumbs,
+                    set(layer[get(searched_place)].tooltip, get(currentscene.place));
+                    layer[get(searched_place)].loadstyle(skin_tooltips);
+                    trace('Tooltip set for thumbnail: ', get(currentscene.place));
+                );
+
+                if(skin_settings.thumbs_text,
+                    calc(thumbtext, 'skin_thumbtext_something_' + i);
+                    addlayer(get(thumbtext));
+                    layer[get(thumbtext)].loadstyle(skin_thumbtext_style);
+                    set(layer[get(thumbtext)], 
+                        keep=true, 
+                        parent=get(searched_place), 
+                        html=get(currentscene.place),
+                        css='font-size:40px;color:white;font-family:Atma;text-align:center;',
+                        align='centerright'
+                        edge='centerleft',
+                        x='125%'
+                    );
+                    trace('Text layer properties set for: ', get(thumbtext));
+                );
+            );
+        );
+        
+    </action>
+
+    <action name="search_check" params="searched_place">
+
+        <!-- check if 0 ang thumbs -->
+        if(get(thumbcount_forsearch) LT 1,
+
+            set(layer[search_null_layer].visible, true);
+
+            addlayer(search_null_layer);
+            set(layer[search_null_layer],
+                parent=suggestion_search_layer,
+                height='60',
+                width=100%,
+                bgcapture=true, 
+                maskchildren=true, 
+                capture=true, 
+                type='container',
+            );
+            addlayer(search_null_layer_text);
+            set(layer[search_null_layer_text],
+                parent=search_null_layer,
+                width=100%,
+                align='center',
+                type='text',
+                bgalpha=0,
+                css='font-size:15px;color:white;font-family:Atma;text-align:center;',
+                html='Nothing in search'
+            );
+            trace('Creating search null layer');
+            ,
+
+            set(layer[])
+        );
+
+    </action>
+
+    <action name="search_final" scope="local" params="searched_place">
+        set(global.searched_place, %1);
+        for(set(i, 0), i LT scene.count, inc(i),
+            if(
+                isvalue(scene[get(i)].thumburl) AND 
+                scene[get(i)].skipthumb != true AND 
+                scene[get(i)].place == searched_place AND 
+                scene[get(i)].head == true,
+                force_UI_2();
+                loadscene('scene_20_-_Bell_tower_-_01',null,MERGE,BLEND(.25));
+                ,
+                trace('Scene does not match: ', scene[get(i)].name);
+            );
+        );
+    </action>
+
+</krpano>

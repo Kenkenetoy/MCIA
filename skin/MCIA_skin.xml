@@ -1,0 +1,248 @@
+<!-- MCIA Skin -->
+<!-- MCIA Skin -->
+<!-- MCIA Skin -->
+<!-- MCIA Skin -->
+<!-- MCIA Skin -->
+
+<krpano 
+onstart=
+"
+
+set(curlang, eng); changelang();
+"
+>
+<!-- define_global_name(shops_parent_behind);
+filter_terminal(terminal1); -->
+    <!-- Skin Properties -->
+
+	<layer name="skin_layer" keep="true" type="container" width="100%" height="100%" maskchildren="true" visible="false" bgcapture="false">
+		<layer type="image" url="/assets/skin/logo-mcia.png" scale=".0475" y="1%" align="top" enabled="false"/>
+        
+        <layer style="vertical-flow" childmargin="0" width="100%" align="bottom" edge="bottom">
+            <layer style="horizontal-flow" align="left" edge="left">
+                <layer style="lang_item" url="/assets/new-skin/v2/english.png" 
+                        engData="English"
+                        korData="영어"
+                        japData="英語"
+                        chnData="英语"
+                        html="" 
+                        onclick="set(curlang, eng); changelang();"/>
+                <layer style="lang_item" url="/assets/new-skin/v2/korea.png" 
+                        engData="Korean"
+                        korData="한국인"
+                        japData="韓国人"
+                        chnData="韩国人"
+                        html="" 
+                        onclick="set(curlang, kor); changelang();"/>
+                <layer style="lang_item" url="/assets/new-skin/v2/japanese.png" 
+                        engData="Japanese"
+                        korData="일본어"
+                        japData="日本語"
+                        chnData="日本人"
+                        html="" 
+                        onclick="set(curlang, jap); changelang();"/>
+                <layer style="lang_item" url="/assets/new-skin/v2/chinese.png" 
+                        engData="Chinese"
+                        korData="중국인"
+                        japData="中国語"
+                        chnData="中国人"
+                        html="" 
+                        onclick="set(curlang, chn); changelang();"/>
+            </layer>
+            <layer type="container" width="100%" height="80" align="bottom" bgalpha="1" 
+                bgcolor="0xe5e5e5" zorder="2" bgcapture="true" handcursor="false">
+                <layer name="panel_container" style="horizontal-flow">
+                    <!-- <layer name="mylogo" type="image" url="assets/new-skin/v2/menu-map-2.png" scale="1" height="auto" width="auto" align="lefttop" keep="true" visible="true"/> -->
+                    <layer name="exploremorepanel" style="item" url="/assets/new-skin/v2/menu-map-2.png"
+                    call="explore_more_parent_behind"
+                        engData="Explore MATA Virtual Tours"
+                        korData="MATA 가상 투어 살펴보기"
+                        japData="MATA バーチャル ツアーを探索する"
+                        chnData="探索 MATA 虚拟旅游"
+                        html="" 
+                        scale="0.06"/>
+                    <layer name="homepanel" style="item" url="/assets/new-skin/v2/menu-home-passive.png"
+                    onclick="loadscene(scene_map-new, null, MERGE, BLEND(0.5));"
+                        engData="Home"
+                        korData="집"
+                        japData="家"
+                        chnData="家"
+                        html="" 
+                        />
+                    <layer name="streetpanel" style="item" url="/assets/new-skin/v2/menu-streetview-passive.png"
+                    onclick="loadscene(scene_Streetview_Security_Stop, null, MERGE, BLEND(1)); "
+                        engData="Street View"
+                        korData="스트리트 뷰"
+                        japData="ストリートビュー"
+                        chnData="街景"
+                        html="" 
+                        />
+                    <layer name="shopspanel" style="item" url="/assets/new-skin/v2/menu-establishment-passive.png"
+                    call="shops_parent_behind" onclick="define_global_name(get(call)); filter_terminal(terminal1);"
+                        engData="Shops"
+                        korData="상점"
+                        japData="ショップ"
+                        chnData="商店"
+                        html="" 
+                        />
+                    <layer name="wayfinderpanel" style="item" url="/assets/new-skin/v2/menu-floorplan-passive.png"
+                    call="wayfinder_parent_behind"
+                        engData="Wayfinder"
+                        korData="웨이파인더"
+                        japData="ウェイファインダー"
+                        chnData="寻路者"
+                        html="" 
+                        />
+                </layer>
+            </layer>
+        </layer>
+        
+        <layer name="wayfinder_parent_behind" style="background_clickable">
+            <layer name="wayfinder_parent" style="container_for_something">
+                <layer style="exit" call="wayfinder_parent_behind"/>
+                <layer name="wayfinder" type="iframe" 
+                iframeurl="https://map-viewer.situm.com?apikey=c0ad119d6d875cbf3ea4187983bd6acdf3e6bf86a8171a79b5a5c7bc1d676685&amp;domain=" 
+                align="bottom" height="95%" width="100%"/>
+            </layer>
+        </layer>
+                        
+        <layer name="shops_parent_behind" style="background_clickable">
+            <layer name="shops_parent" style="container_for_something">
+                <layer style="vertical-flow" height="auto" width="85%">
+                    <layer style="mcia-text" 
+                        engData="Terminal 1 Commercial Establishments"
+                        korData="제1터미널 상업시설"
+                        japData="第1ターミナル商業施設"
+                        chnData="第 1 航站楼商业机构"
+                        html=""
+                        />
+                    <layer name="box" style="parent-of-scroller">
+                        <layer style="scroller-shop">
+
+                            <layer name="allarrivalterminal1-layer" style="horizontal-flow-overflow"/>
+                            <layer name="alldepartureterminal1-layer" style="horizontal-flow-overflow"/>
+                            <layer name="eateryarrivalterminal1-layer" style="horizontal-flow-overflow"/>
+                            <layer name="eaterydepartureterminal1-layer" style="horizontal-flow-overflow"/>
+                            <layer name="shopsarrivalterminal1-layer" style="horizontal-flow-overflow"/>
+                            <layer name="shopsdepartureterminal1-layer" style="horizontal-flow-overflow"/>
+                            <layer name="atmarrivalterminal1-layer" style="horizontal-flow-overflow"/>
+                            <layer name="atmdepartureterminal1-layer" style="horizontal-flow-overflow"/>
+                            <layer name="otherarrivalterminal1-layer" style="horizontal-flow-overflow"/>
+                            <layer name="otherdepartureterminal1-layer" style="horizontal-flow-overflow"/>
+
+                            <layer name="allarrivalterminal2-layer" style="horizontal-flow-overflow"/>
+                            <layer name="alldepartureterminal2-layer" style="horizontal-flow-overflow"/>
+                            <layer name="eateryarrivalterminal2-layer" style="horizontal-flow-overflow"/>
+                            <layer name="eaterydepartureterminal2-layer" style="horizontal-flow-overflow"/>
+                            <layer name="shopsarrivalterminal2-layer" style="horizontal-flow-overflow"/>
+                            <layer name="shopsdepartureterminal2-layer" style="horizontal-flow-overflow"/>
+                            <layer name="atmarrivalterminal2-layer" style="horizontal-flow-overflow"/>
+                            <layer name="atmdepartureterminal2-layer" style="horizontal-flow-overflow"/>
+                            <layer name="otherarrivalterminal2-layer" style="horizontal-flow-overflow"/>
+                            <layer name="otherdepartureterminal2-layer" style="horizontal-flow-overflow"/>
+                            
+                        </layer>
+                    </layer>
+                    <layer type="container" style="horizontal-flow" align="top" edge="top">
+                        <!-- make this active from the logic -->
+                        <!-- all -->
+                        <layer name="all" style="shops_item_2_passive" 
+                            engData="All"
+                            korData="모두"
+                            japData="全て"
+                            chnData="全部"
+                            html="" 
+                            onclick="filter_shop(get(name));"/>
+                        <!-- departure -->
+                        <layer name="departure" style="shops_item_2_passive" 
+                            engData="Departure"
+                            korData="출발"
+                            japData="出発"
+                            chnData="离开"
+                            html="" 
+                            onclick="filter_area(get(name));"/>
+                        <!-- arrival -->
+                        <layer name="arrival" style="shops_item_2_passive" 
+                            engData="Arrival"
+                            korData="도착"
+                            japData="到着"
+                            chnData="到达"
+                            html="" 
+                            onclick="filter_area(get(name));"/>
+                        <!-- eatery -->
+                        <layer name="eatery" style="shops_item_2_passive" 
+                            engData="Eatery"
+                            korData="간이 식당"
+                            japData="飲食店"
+                            chnData="餐馆"
+                            html="" 
+                            onclick="filter_shop(get(name));"/>
+                        <!-- shops   -->
+                        <layer name="shops" style="shops_item_2_passive" 
+                            engData="Shops"
+                            korData="상점"
+                            japData="ショップ"
+                            chnData="商店"
+                            html="" 
+                            onclick="filter_shop(get(name));"/>
+                        <!-- atm -->
+                        <layer name="atm" style="shops_item_2_passive" 
+                            engData="ATM"
+                            korData="ATM"
+                            japData="ATM"
+                            chnData="自动提款机"
+                            html="" 
+                            onclick="filter_shop(get(name));"/>
+                        <!-- other -->
+                        <layer name="other" style="shops_item_2_passive" 
+                            engData="Others"
+                            korData="기타"
+                            japData="その他"
+                            chnData="其他的"
+                            html="" 
+                            onclick="filter_shop(get(name));"/>
+                    </layer>
+                    <layer style="horizontal-flow" align="bottom" edge="bottom" width="100%" childflowspacing="0" bgroundedge="100" maskchildren="true">
+                        <layer name="terminal1" style="terminal_item_2_passive" 
+                            engData="Terminal 1"
+                            korData="제1터미널"
+                            japData="第1ターミナル"
+                            chnData="1 号航站楼"
+                            html="" 
+                            onclick="filter_terminal(get(name));"/>
+                        <layer name="terminal2" style="terminal_item_2_passive" 
+                            engData="Terminal 2"
+                            korData="제2터미널"
+                            japData="第2ターミナル"
+                            chnData="第2航站楼"
+                            html="" 
+                            onclick="filter_terminal(get(name));"/>
+                    </layer>
+                </layer>
+            </layer>
+        </layer>
+
+        <layer name="explore_more_parent_behind" style="background_clickable">
+            <layer style="vertical-flow" width="80%" height="80%" align="center" childflowspacing="60">
+                <layer style="mcia-text-white-big"
+                        engData="Explore MATA Virtual Tours"
+                        korData="MATA 가상 투어 살펴보기"
+                        japData="MATA バーチャル ツアーを探索する"
+                        chnData="探索 MATA 虚拟旅游"
+                        html="" 
+                        align="bottom" enabled="true" cursor="default"/>
+                    <layer name="nobox" style="parent-of-scroller" height="100%">
+                        <layer style="scroller-shop">
+                            <layer style="horizontal-flow-overflow" height="1000" childflowspacing="10 10 60 10">
+                                <layer style="explore_more_items" url="/assets/new-skin/explore-mata-vt-maps/suroycebu (1).png" onclick="openurl('https://www.mata.ph/cebu/',_blank);" />
+                                <layer style="explore_more_items" url="/assets/new-skin/explore-mata-vt-maps/lapu lapu (1).png" onclick="openurl('https://www.mata.ph/cebu/',_blank);" />
+                                <layer style="explore_more_items" url="/assets/new-skin/explore-mata-vt-maps/suroypanglao1.png" onclick="openurl('https://www.mata.ph/cebu/',_blank);" />
+                                <layer style="explore_more_items" url="/assets/new-skin/explore-mata-vt-maps/cgm (1).png" onclick="openurl('https://www.mata.ph/cebu/',_blank);" />
+                        </layer>
+                    </layer>
+                </layer>
+            </layer>
+        </layer>
+	</layer>
+
+</krpano>

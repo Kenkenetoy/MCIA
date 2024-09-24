@@ -1,0 +1,45 @@
+<krpano>
+
+  <style name="item" type="text" bgalpha="0" scale="2" align="center"
+    capture="false"
+    onover="set(hotspot[calc(get(html) + '-hover')].visible,true); tween(hotspot[calc(get(html) + '-hover')].alpha,1.0);"
+    onout="tween(hotspot[calc(get(html) + '-hover')].alpha,0.0, 0.5, default, set(hotspot[calc(get(html) + '-hover')].visible,false); );"
+    ondown.mobile.or.tablet="set(contextmenu.touch,false); onover();"
+    onup.mobile.or.tablet="delayedcall(0.1,set(contextmenu.touch,true)); onout();"
+    onclick="addthumbs(get(html), get(thumbs_type)); toggle_grid_menu_layer();"
+    css="color:#000000; font-family:Atma;"
+  />
+
+  <style name="itemyawa" type="text" bgborder="1 0xAAAAAA" 
+		onclick="switch(scale,1,2);"
+		/>
+
+  <style name="mypolygonalhotspotstylenigga"
+    alpha="0"
+    capture="false"
+    onover="set(hotspot[calc(get(name) + '-hover')].visible,true); tween(hotspot[calc(get(name) + '-hover')].alpha,1.0);"
+    onout="tween(hotspot[calc(get(name) + '-hover')].alpha,0.0, 0.5, default, set(hotspot[calc(get(name) + '-hover')].visible,false); );"
+    ondown.mobile.or.tablet="set(contextmenu.touch,false); onover();"
+    onup.mobile.or.tablet="delayedcall(0.1,set(contextmenu.touch,true)); onout();"
+    />
+	<style name="textfield" type="text" background="false" css="font-size:14px; color:#FFFFFF; font-style:italic;" />
+	
+  <style name="scrollarea" url.flash="%VIEWER%/plugins/scrollarea.swf" url.html5="%VIEWER%/plugins/scrollarea.js" />
+	
+  <style name="button" type="text" background="true" backgroundalpha="0.2" css="font-size:14px; color:#FFFFFF;" border="true" bordercolor="0xFFFFFF" padding="2 4" />
+	
+  <style name="dragable" ondown="copy(sx,x);copy(sy,y);copy(mx,mouse.x);copy(my,mouse.y);asyncloop(pressed,set(x,calc(sx-mx+mouse.x));set(y,calc(sy-my+mouse.y)););" />
+
+  <style name="scroller" type="scrollarea" align="top" edge="top" width.mobile="100%" flowchildren.mobile="v" flowchildren.desktop="h" childflowspacing="30" childflowspacing.mobile="80" childmargin="0"
+							childmargin.mobile="0 0 100 0" flowoverflow="true" scrolltype="smooth" direction="v" draggable="true" mwheel="true"/>
+
+  <style name="buttons" 
+    type="image" 
+    height="auto" 
+    weight="auto"
+    scale.mobile=".35"
+    scale.desktop=".45"
+    onclick="changethumbs(get(thumbs_type), get(thumbs_type))"
+  />
+
+</krpano>

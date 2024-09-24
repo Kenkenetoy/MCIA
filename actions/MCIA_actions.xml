@@ -1,0 +1,489 @@
+<krpano>
+
+    <action name="followmouse_init" scope="private:followmouse" autorun="onstart" devices="desktop.and.no-touch">
+		set(followspeed, 0.05);
+		set(followrange, 10);
+		set(followfactor, 1.0);
+		set(track_ry, 0);
+		set(track_rx, 0);
+		set(global.events[followmouse].keep, true);
+		set(global.events[followmouse].onviewchanged, set(global.view.haschanged,true); );
+		set(global.events[followmouse].onviewchange, followmouse_onviewchange() );
+		set(global.events[followmouse].onmousedown, scope(private:followmouse, stopdelayedcall(followmouse_reenable); tween(followfactor,0.0,0.2); ); );
+		set(global.events[followmouse].onmouseup, scope(private:followmouse, delayedcall(followmouse_reenable, 1.0, tween(followfactor,1.0,3.0) ); ); );
+	</action>
+	
+	<action name="followmouse_onviewchange" scope="private:followmouse">
+		if(global.mouse.x != 0 AND global.mouse.y != 0,
+			Math.tan(zoomscale, calc(global.view.vfov * 0.5 * Math.PI / 180.0));
+			calc(zoomscale, 1.0 / zoomscale);
+			Math.max(zoomscale, 1.0);
+			calc(new_ry, followfactor/zoomscale * followrange * (global.mouse.x / global.stagewidth - 0.5));
+			calc(new_rx, followfactor/zoomscale * followrange * (global.mouse.y / global.stageheight - 0.5));
+			calc(track_ry, track_ry*(1.0-followspeed) + new_ry*followspeed);
+			calc(track_rx, track_rx*(1.0-followspeed) + new_rx*followspeed);
+			copy(global.view.ry, track_ry);
+			copy(global.view.rx, track_rx);
+		);
+	</action>
+
+    <action name="do_crop_animation" scope="local" args="framewidth, frameheight, framerate">
+		<!-- define local variables -->
+		calc(local.xframes, (caller.imagewidth /framewidth) BOR 0);
+		calc(local.frames, xframes * ((caller.imageheight / frameheight) BOR 0));
+		def(local.frame, integer, 0);
+		
+		<!-- set the first frame -->
+		calc(caller.crop, '0|0|' + framewidth + '|' + frameheight);
+		
+		<!-- do the animation -->
+		setinterval(calc('crop_anim_' + caller.name), calc(1.0 / framerate),
+			if(caller.loaded,
+				inc(frame);
+				if(frame GE frames, if(caller.onlastframe !== null, callwith(caller, onlastframe() ) ); set(frame,0); );
+				mod(xpos, frame, xframes);
+				div(ypos, frame, xframes);
+				Math.floor(ypos);
+				mul(xpos, framewidth);
+				mul(ypos, frameheight);
+				calc(caller.crop, xpos + '|' + ypos + '|' + framewidth + '|' + frameheight);
+			  ,
+				<!-- stop the interval when the hotspot gets removed -->
+				clearinterval(calc('crop_anim_' + caller.name));
+			);
+		);
+	</action>
+
+    <action name="load_pano">
+        
+	</action>
+
+    <!-- define what global layer is currently in use -->
+    <action name="define_global_name">
+	
+		<!-- The parameter 'selected_type_terminal' is passed to this action -->
+		set(global.global_layer_name, %1);
+		open_close_layer(global_layer_name);
+
+	</action>
+
+    <!-- global layer close-open mech -->
+	<action name="open_close_layer" scope="local">
+		trace('the name of layer=', get(global_layer_name));
+		trace('if you only see this then it failed.');
+
+		if(layer[get(global_layer_name)].toggled == 'false',
+			set(layer[get(global_layer_name)].visible, true);
+			set(layer[get(global_layer_name)].toggled, true);
+			set(layer[get(global_layer_name)].enabled, true);
+			tween(layer[get(global_layer_name)].alpha, 1, 1, easeOutQuad);
+			trace(get(global_layer_name), ' toggled = true');
+			,
+			set(layer[get(global_layer_name)].enabled, false);
+			tween(layer[get(global_layer_name)].alpha, 0, 1, easeOutQuad);
+			trace(get(global_layer_name), ' toggled = false');
+			delayedcall(1.0,
+				set(layer[get(global_layer_name)].toggled, false);
+				set(layer[get(global_layer_name)].visible, false);
+			);
+		)
+	</action>
+
+    <!--     
+        ______   __  __    __                                                                __                             
+        /      \ /  |/  |  /  |                                                              /  |                            
+        /$$$$$$  |$$/ $$ | _$$ |_     ______    ______          _______  __    __   _______  _$$ |_     ______   _____  ____  
+        $$ |_ $$/ /  |$$ |/ $$   |   /      \  /      \        /       |/  |  /  | /       |/ $$   |   /      \ /     \/    \ 
+        $$   |    $$ |$$ |$$$$$$/   /$$$$$$  |/$$$$$$  |      /$$$$$$$/ $$ |  $$ |/$$$$$$$/ $$$$$$/   /$$$$$$  |$$$$$$ $$$$  |
+        $$$$/     $$ |$$ |  $$ | __ $$    $$ |$$ |  $$/       $$      \ $$ |  $$ |$$      \   $$ | __ $$    $$ |$$ | $$ | $$ |
+        $$ |      $$ |$$ |  $$ |/  |$$$$$$$$/ $$ |             $$$$$$  |$$ \__$$ | $$$$$$  |  $$ |/  |$$$$$$$$/ $$ | $$ | $$ |
+        $$ |      $$ |$$ |  $$  $$/ $$       |$$ |            /     $$/ $$    $$ |/     $$/   $$  $$/ $$       |$$ | $$ | $$ |
+        $$/       $$/ $$/    $$$$/   $$$$$$$/ $$/             $$$$$$$/   $$$$$$$ |$$$$$$$/     $$$$/   $$$$$$$/ $$/  $$/  $$/ 
+                                                                        /  \__$$ |                                            
+                                                                        $$    $$/                                             
+                                                                        $$$$$$/                                              
+        ______                      __                                                                                      
+        /      \                    /  |                                                                                     
+        /$$$$$$  |__    __   _______ $$ |   __        __    __   ______   __    __                                            
+        $$ |_ $$//  |  /  | /       |$$ |  /  |      /  |  /  | /      \ /  |  /  |                                           
+        $$   |   $$ |  $$ |/$$$$$$$/ $$ |_/$$/       $$ |  $$ |/$$$$$$  |$$ |  $$ |                                           
+        $$$$/    $$ |  $$ |$$ |      $$   $$<        $$ |  $$ |$$ |  $$ |$$ |  $$ |                                           
+        $$ |     $$ \__$$ |$$ \_____ $$$$$$  \       $$ \__$$ |$$ \__$$ |$$ \__$$ |                                           
+        $$ |     $$    $$/ $$       |$$ | $$  |      $$    $$ |$$    $$/ $$    $$/                                            
+        $$/       $$$$$$/   $$$$$$$/ $$/   $$/        $$$$$$$ | $$$$$$/   $$$$$$/                                             
+                                                    /  \__$$ |                                                               
+                                                    $$    $$/                                                                
+                                                    $$$$$$/                                                                 
+    -->
+
+    <!-- step 1: Determining which is selected_type -->
+    <action name="filter_shop" params="fuck">
+
+
+                    <!-- ,gggg,   _,gggggg,_       ,gg,            ,a8a,      ,gggg,  
+                        d8" "8I ,d8P""d8P"Y8b,    i8""8i          ,8" "8,   ,88"""Y8b,
+                        88  ,dP,d8'   Y8   "8b,dP `8,,8'          d8   8b  d8"     `Y8
+                    8888888P" d8'    `Ybaaad88P'  `Y88aaad8      88   88 d8'   8b  d8
+                        88     8P       `""""Y8     d8""""Y8,     88   88,8I    "Y88P'
+                        88     8b            d8    ,8P     8b     Y8   8PI8'          
+                    ,aa,_88     Y8,          ,8P    dP      Y8     `8, ,8'd8           
+                    dP" "88P     `Y8,        ,8P'_ ,dP'      I88888  "8,8" Y8,          
+                    Yb,_,d88b,,_  `Y8b,,__,,d8P' "888,,_____,dP`8b,  ,d8b, `Yba,,_____, 
+                    "Y8P"  "Y88888 `"Y8888P"'   a8P"Y888888P"   "Y88P" "Y8  `"Y8888888  -->
+                                                                    
+        <!-- ______________________________________________________________________________ -->
+
+            <!-- 1. expected behaviour, toggle style into active to whoever is selected_type -->
+
+                        <!-- 2. take variables from select filter action` -->
+
+        <!-- 3. guard clausing, whoever is not selected_type will be turn its style into passive -->
+
+                <!-- 4. make the algorithm of addthumbs to take dynamic global vars -->
+
+                            <!-- 5. after that is to execute addthumbs -->
+
+        <!-- ______________________________________________________________________________ -->
+
+        <!-- 1 -->
+        <!-- 2 -->
+
+            set(global.selected_type, %1);
+
+        <!-- 3 -->
+
+            if(get(selected_type) != 'all',
+                set(global.not_selected_type, all);
+                passivebutton();
+            ,
+                trace('This is currently selected_type, guard clause failed: ', calc('' + 'all'));
+            );
+
+            if(get(selected_type) != 'eatery',
+                set(global.not_selected_type, eatery);
+                passivebutton();
+            ,
+                trace('This is currently selected_type, guard clause failed: ', calc('' + 'eatery'));
+            );
+
+            if(get(selected_type) != 'shops',
+                set(global.not_selected_type, shops);
+                passivebutton();
+            ,
+                trace('This is currently selected_type, guard clause failed: ', calc('' + 'shops'));
+            );
+
+            if(get(selected_type) != 'atm',
+                set(global.not_selected_type, atm);
+                passivebutton();
+            ,
+                trace('This is currently selected_type, guard clause failed: ', calc('' + 'atm'));
+            );
+
+            if(get(selected_type) != 'other',
+                set(global.not_selected_type, other);
+                passivebutton();
+            ,
+                trace('This is currently selected_type, guard clause failed: ', calc('' + 'other'));
+            );
+
+            activebutton();
+    </action>
+
+    <action name="filter_area">
+        set(global.selected_area, %1);
+        filter_shop(eatery);
+        assignstyle(layer[get(selected_area)], 'shops_item_2_active');
+
+        trace('selected_area: ', get(selected_area));
+
+        if(get(selected_area) != arrival,
+                assignstyle(layer[arrival], 'shops_item_2_passive');
+            ,
+                trace('This is currently selected_area, guard clause failed: ', calc('' + 'arrival'));
+        );
+        if(get(selected_area) != departure,
+                assignstyle(layer[departure], 'shops_item_2_passive');
+            ,
+                trace('This is currently selected_area, guard clause failed: ', calc('' + 'departure'));
+        );
+    </action>
+
+    <action name="filter_terminal">
+        set(global.selected_terminal, %1);
+        filter_area(departure);
+        assignstyle(layer[get(selected_terminal)], 'terminal_item_2_active');
+
+        trace('selected_terminal: ', get(selected_terminal));
+
+        if(get(selected_terminal) != terminal1,
+                assignstyle(layer[terminal1], 'terminal_item_2_passive');
+            ,
+                trace('This is currently selected_terminal, guard clause failed: ', calc('' + 'arrival'));
+        );
+        if(get(selected_terminal) != terminal2,
+                assignstyle(layer[terminal2], 'terminal_item_2_passive');
+            ,
+                trace('This is currently selected_terminal, guard clause failed: ', calc('' + 'departure'));
+        );
+    </action>
+
+    <!-- step 2: Set to Active/Passive Buttons -->
+
+    <action name="activebutton" params="selected_type">
+        trace('selected_type to be active: ', get(selected_type));
+        assignstyle(layer[get(selected_type)], 'shops_item_2_active');
+        shop_addthumbs(selected_terminal, selected_terminal, selected_type);
+        <!-- set(layer[calc(get(not_selected_type)+'-layer')].visible, true); -->
+        trace('visible layer: ', get(selected_type));
+    </action>
+
+    <action name="passivebutton" params="not_selected_type">
+        trace('selected_type to be passive: ', get(not_selected_type));
+        assignstyle(layer[get(not_selected_type)], 'shops_item_2_passive');
+        <!-- set(layer[calc(get(not_selected_type)+'-layer')].visible, false); -->
+    </action>
+
+    <action name="disablescrollerlayers">
+        calc(thumblayer, get(selected_type) + get(selected_area) + get(selected_terminal) + '-layer' );
+        if(thumblayer != 'allarrivalterminal1-layer',
+            set(layer[allarrivalterminal1-layer].visible, false);
+        );
+        if(thumblayer != 'alldepartureterminal1-layer',
+            set(layer[alldepartureterminal1-layer].visible, false);
+        );
+        if(thumblayer != 'eateryarrivalterminal1-layer',
+            set(layer[eateryarrivalterminal1-layer].visible, false);
+        );
+        if(thumblayer != 'eaterydepartureterminal1-layer',
+            set(layer[eaterydepartureterminal1-layer].visible, false);
+        );
+        if(thumblayer != 'shopsarrivalterminal1-layer',
+            set(layer[shopsarrivalterminal1-layer].visible, false);
+        );
+        if(thumblayer != 'shopsdepartureterminal1-layer',
+            set(layer[shopsdepartureterminal1-layer].visible, false);
+        );
+        if(thumblayer != 'atmarrivalterminal1-layer',
+            set(layer[atmarrivalterminal1-layer].visible, false);
+        );
+        if(thumblayer != 'atmdepartureterminal1-layer',
+            set(layer[atmdepartureterminal1-layer].visible, false);
+        );
+        if(thumblayer != 'otherarrivalterminal1-layer',
+            set(layer[otherarrivalterminal1-layer].visible, false);
+        );
+        if(thumblayer != 'otherdepartureterminal1-layer',
+            set(layer[otherdepartureterminal1-layer].visible, false);
+        );
+
+        if(thumblayer != 'allarrivalterminal2-layer',
+            set(layer[allarrivalterminal2-layer].visible, false);
+        );
+        if(thumblayer != 'alldepartureterminal2-layer',
+            set(layer[alldepartureterminal2-layer].visible, false);
+        );
+        if(thumblayer != 'eateryarrivalterminal2-layer',
+            set(layer[eateryarrivalterminal2-layer].visible, false);
+        );
+        if(thumblayer != 'eaterydepartureterminal2-layer',
+            set(layer[eaterydepartureterminal2-layer].visible, false);
+        );
+        if(thumblayer != 'shopsarrivalterminal2-layer',
+            set(layer[shopsarrivalterminal2-layer].visible, false);
+        );
+        if(thumblayer != 'shopsdepartureterminal2-layer',
+            set(layer[shopsdepartureterminal2-layer].visible, false);
+        );
+        if(thumblayer != 'atmarrivalterminal2-layer',
+            set(layer[atmarrivalterminal2-layer].visible, false);
+        );
+        if(thumblayer != 'atmdepartureterminal2-layer',
+            set(layer[atmdepartureterminal2-layer].visible, false);
+        );
+        if(thumblayer != 'otherarrivalterminal2-layer',
+            set(layer[otherarrivalterminal2-layer].visible, false);
+        );
+        if(thumblayer != 'otherdepartureterminal2-layer',
+            set(layer[otherdepartureterminal2-layer].visible, false);
+        );
+    </action>
+
+    <!-- step 3: Display thumbnails -->
+    <action name="shop_addthumbs" params="thumb_terminal, thumb_terminal, thumb_type">
+        disablescrollerlayers();
+        <!-- Initialize the global array for thumbnails -->
+        def(global.shop_array, array);
+        set(thumbcount, 0);
+        set(thumb_terminal, get(selected_terminal));
+        set(thumb_area, get(selected_area));
+        set(thumb_type, get(selected_type));
+        trace('selected terminal for array: ', get(thumb_terminal));
+        trace('selected area for array: ', get(thumb_area));
+        trace('selected type for array: ', get(thumb_type));
+
+
+        <!-- Populate the shop_array with matching scenes -->
+        if(thumb_type == 'all',
+            for(set(i, 0), i LT scene.count, inc(i),
+                if(isvalue(scene[get(i)].thumburl) 
+                AND scene[get(i)].skipthumb != true 
+                AND scene[get(i)].terminal == thumb_terminal 
+                AND scene[get(i)].area == thumb_area 
+                ,
+                    set(shop_array[get(thumbcount)], get(scene[get(i)]));
+                    set(scene[get(i)].sceneindex, get(i));
+                    set(scene[get(i)].thumbindex, get(thumbcount));
+                    inc(thumbcount);
+                );
+            );
+            ,
+            for(set(i, 0), i LT scene.count, inc(i),
+                if(isvalue(scene[get(i)].thumburl) 
+                AND scene[get(i)].skipthumb != true 
+                AND scene[get(i)].terminal == thumb_terminal 
+                AND scene[get(i)].area == thumb_area 
+                AND scene[get(i)].type == thumb_type
+                ,
+                    set(shop_array[get(thumbcount)], get(scene[get(i)]));
+                    set(scene[get(i)].sceneindex, get(i));
+                    set(scene[get(i)].thumbindex, get(thumbcount));
+                    inc(thumbcount);
+                );
+            );
+        );
+        <!-- for(set(i, 0), i LT scene.count, inc(i),
+            if(isvalue(scene[get(i)].thumburl) 
+            AND scene[get(i)].skipthumb != true 
+            AND scene[get(i)].terminal == thumb_terminal 
+            AND scene[get(i)].area == thumb_area 
+            AND scene[get(i)].type == thumb_type
+            ,
+                set(shop_array[get(thumbcount)], get(scene[get(i)]));
+                set(scene[get(i)].sceneindex, get(i));
+                set(scene[get(i)].thumbindex, get(thumbcount));
+                inc(thumbcount);
+            );
+        ); -->
+
+        if(thumbcount == 0,
+            trace('0 thumbs');
+        ,
+            trace(get(thumbcount), ' thumbs');
+        );
+        
+        <!-- Check if thumbs are enabled in settings -->
+        if(skin_settings.thumbs == false,
+            trace('thumbs not active');
+            set(layer[skin_btn_thumbs].visible, false);
+            ,
+            trace('building thumbs');
+            copy(thumbwidth, skin_settings.thumbs_width);
+            copy(thumbheight, skin_settings.thumbs_height);
+            copy(thumbpadding, skin_settings.thumbs_padding);
+            copy(thumbcrop, skin_settings.thumbs_crop);
+
+            calc(thumbxoffset, thumbwidth + thumbpadding);
+            calc(thumbxcenter, thumbxoffset * 0.5);
+            calc(thumbbarwidth, thumbxoffset * thumbcount + thumbpadding);
+            calc(thumbbarheight, thumbpadding + thumbheight + thumbpadding);
+
+            <!-- Add thumbnail layers -->
+            for(set(i, 0), i LT thumbcount, inc(i),
+                copy(currentscene, shop_array[get(i)]);
+
+                calc(thumbname, thumb_type + thumb_area + thumb_terminal + '-thumb-' + i);
+                calc(thumbparent, thumb_type + thumb_area + thumb_terminal + '-layer');
+                addlayer(get(thumbname));
+
+                set(layer[get(thumbname)],
+                    url=get(currentscene.thumburl),
+                    keep=true,
+                    parent=get(thumbparent),
+                    bgroundedge=get(skin_settings.design_thumbborder_bgroundedge),
+                    align='lefttop',
+                    crop=get(thumbcrop),
+                    width=get(thumbwidth),
+                    height=get(thumbheight),
+                    x=calc(thumbpadding + i * thumbxoffset),
+                    y=get(thumbpadding),
+                    linkedscene=get(currentscene.name),
+                    onclick='copy(layer[skin_thumbborder].parent, name); skin_loadscene(get(linkedscene), get(skin_settings.loadscene_blend))'
+                );
+
+                set(layer[get(thumbparent)].visible, true);
+
+                set(currentscene, 
+                    thumbx=calc(thumbpadding + i * thumbxoffset + thumbxcenter),
+                    thumby=get(thumbpadding)
+                );
+
+                if(skin_settings.tooltips_thumbs,
+                    set(layer[get(thumbname)].tooltip, get(currentscene.place));
+                    layer[get(thumbname)].loadstyle(skin_tooltips);
+                );
+
+                if(skin_settings.thumbs_text,
+                    calc(thumbtext, thumb_type + thumb_area + thumb_terminal + '_thumb_' + i + '_text');
+                    addlayer(get(thumbtext));
+                    layer[get(thumbtext)].loadstyle(skin_thumbtext_style_passive);
+                    set(layer[get(thumbtext)], 
+                        keep=true, 
+                        parent=get(thumbname), 
+                        engData=get(currentscene.engplace),
+                        korData=get(currentscene.korplace),
+                        japData=get(currentscene.japplace),
+                        chnData=get(currentscene.chnplace),
+                        html='localization failed',
+                        edge='centertop',
+                        y='-5%'
+                    );
+                    if(curlang == 'eng',
+                        set(layer[get(thumbtext)].html, get(currentscene.engplace));
+                    );
+                    
+                    if(curlang == 'kor',
+                        set(layer[get(thumbtext)].html, get(currentscene.korplace));
+                    );
+                    
+                    if(curlang == 'jap',
+                        set(layer[get(thumbtext)].html, get(currentscene.japplace));
+                    );
+                    
+                    if(curlang == 'chn',
+                        set(layer[get(thumbtext)].html, get(currentscene.chnplace));
+                    );
+                );
+            );
+            trace('supposed parent: ', calc(thumb_type + thumb_area + thumb_terminal + '-layer'));
+            trace('actual parent: ', get(layer[get(thumbname)].parent));
+            trace('lang data: ', get(layer[eaterydepartureterminal1_thumb_3_text].engData));
+            trace('test data: ', get(thumbtext));
+        );
+    </action>
+
+    <!-- localization -->
+    <action name="changelang">
+        for( set(i, 0), i LT layer.count, inc(i),
+            
+            if(layer[get(i)].engData,
+                if(curlang == 'eng',
+                    set(layer[get(i)].html, get(layer[get(i)].engData));
+                );
+                
+                if(curlang == 'kor',
+                    set(layer[get(i)].html, get(layer[get(i)].korData));
+                );
+                
+                if(curlang == 'jap',
+                    set(layer[get(i)].html, get(layer[get(i)].japData));
+                );
+                
+                if(curlang == 'chn',
+                    set(layer[get(i)].html, get(layer[get(i)].chnData));
+                );
+            );
+        );
+    </action>
+
+</krpano>

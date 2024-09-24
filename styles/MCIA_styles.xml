@@ -1,0 +1,76 @@
+<krpano>
+
+
+    <!-- Styles -->
+
+    <!-- text styles -->
+    <style name="mcia-text" type="text" align="left" background="false" enabled="false" css="font: 22px Roboto; font-weight: bold; color: black;"/>
+    <style name="mcia-text-white" type="text" align="left" background="false" enabled="false" css="font: 22px Roboto; font-weight: bold; color: white;"/>
+    <style name="mcia-text-white-big" type="text" align="left" background="false" enabled="false" css="font: 44px Roboto; font-weight: bold; color: white;"/>
+    <style name="mcia-text-orange" type="text" align="left" background="false" enabled="false" css="font: 22px Roboto; font-weight: bold; color:#FFA500;"/>
+     <!-- txtshadow="get:skin_settings.design_text_txtshadow" -->
+	<style name="skin_thumbtext_style_passive" type="text" align="bottom" width="100%" y="5" enabled="true" bg="false" bgborder="false" css="calc:skin_settings.design_text_css + ' text-align:center; font-size:18px; color:orange;'"/>
+	<style name="skin_thumbtext_style_active" type="text" align="bottom" width="100%" y="5" enabled="true" bg="false" bgborder="false" css="calc:skin_settings.design_text_css + ' text-align:center; font-size:18px; color:red;'"/>
+
+    <!-- scroller styles -->
+    <style name="parent-of-scroller" type="container" align="center" width="100%" height="500" bgcapture="true" capturewheel="true"/>
+    <style name="scroller-shop" type="scrollarea" align="lefttop" width="100%" flowchildren="v" childflowspacing="3" childmargin="4"
+        scrolltype="smooth" direction="v" draggable="true" mwheel="true"/>
+    
+    <!-- button styles -->
+    <style name="lang_item" type="image" scale=".06" align="center" onclick="define_global_name(get(call));" onhover="showtext(get(html), Tooltip);"/>
+    <style name="item" type="image" scale=".1" align="center" onclick="define_global_name(get(call));" onhover="showtext(get(html), Tooltip);"/>
+    <style name="shops_item" type="image" scale=".0925" onclick="filter_shop(get(call));"/>
+    <style name="terminal_item" type="image" scale=".08" onclick="select_terminal(get(call));"/>
+    
+    
+    
+    
+    <style name="shops_item_2_passive" type="text" padding="8 32" bgroundedge="25" bgcolor="0xffffff" 
+        css="font: 20px Roboto; color: black; text-align:center;" enabled="true" 
+        />
+
+    <style name="shops_item_2_active" type="text" padding="8 32" bgroundedge="25" bgcolor="0xff6800" 
+        css="font: 20px Roboto; color: white; text-align:center;" enabled="false"
+        />
+
+    <style name="terminal_item_2_passive" type="text" padding="8 8" css="font: 28px Roboto; color: black; text-align:center;" 
+        width="50%" bgcolor="0xffffff" enabled="true" 
+        />
+
+    <style name="terminal_item_2_active" type="text" padding="8 8" css="font: 28px Roboto; color: white; text-align:center;" 
+        width="50%" bgcolor="0xff6800" enabled="false"
+        />
+    
+    <!-- misc styles -->
+    <style name="polygonhotspot" alpha="0.0" capture="false"/>
+    <style name="exit" type="text" bgborder="1 0xAAAAAA" align="topright" onclick="define_global_name(get(call));" html="exit" />
+    <style name="background_clickable" type="container" width="100%" height="100%" enabled="true" bgcapture="true" toggled="false" capturewheel="true"
+        alpha="0" bgalpha=".85" bgcolor="0x000000" onclick="define_global_name(get(name));" visible="false" zorder="1" />
+    <style name="explore_more_items" type="image" scale=".75" onhover="tween(layer[get(name)].scale, 1, 1, easeOutQuad);"
+        onout="tween(layer[get(name)].scale, .75, 1, easeOutQuad);"
+        />
+
+    <style name="container_for_something"
+        type="container" align="center" width="60%" height="80%" y="-50" cursor="default"
+        bgalpha="1" bgcolor="0xe5e5e5" bgcapture="true" bgroundedge="25" maskchildren="true"/>
+
+	<style name="button" type="text" background="true" backgroundalpha="0.2" css="font-size:14px; color:#FFFFFF;" border="true" 
+        bordercolor="0xFFFFFF" padding="2 4" />
+    <textstyle name="Tooltip" font="Arial" fontsize.no-mobile="24" fontsize.mobile="28" bold="true" background="true" 
+        backgroundcolor="0xff9c20" border="true" bordercolor="0xFAF9F6" textcolor="0xFAF9F6" padding="8 16" roundedge="10"
+        origin="cursor" edge="top" textalign="none" xoffset="55%" yoffset.no-touch="10" yoffset.touch="-40"
+        />
+    
+    <!-- flow children styles -->
+    <style name="horizontal-flow" type="container" flowchildren="h" align="center"
+        childmargin="5" childflowspacing="5" flowspacing="0 0 10"/>
+    <style name="horizontal-flow-overflow" type="container" flowchildren="h" align="top" height="auto" visible="false"
+        flowoverflow="true" childmargin="5 5 60 5" childflowspacing="16 5 60 16" flowspacing="0 0 10" width="100%"/>
+    <style name="vertical-flow" type="container" flowchildren="v" align="center"    
+        childmargin="5" childflowspacing="5" flowspacing="0 0 10"/>
+    <!-- End of Styles -->
+
+	<!-- some custom example blend modes ('shops' is a custom xml structure) -->
+
+</krpano>

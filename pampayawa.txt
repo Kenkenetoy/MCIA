@@ -1,0 +1,1314 @@
+FUCK THAT
+    <!-- DOLJO -->
+    <!-- DOLJO -->
+    <!-- DOLJO -->
+    <!-- DOLJO -->
+    <!-- DOLJO -->
+    <!-- DOLJO -->
+    <!-- DOLJO -->
+    <!-- DOLJO -->
+    <!-- DOLJO -->
+    <!-- DOLJO -->
+    <!-- DOLJO -->
+    <!-- DOLJO -->
+    <!-- DOLJO -->
+    <!-- DOLJO -->
+    <!-- DOLJO -->
+
+    <action name="Doljo_Accomodation" scope="local" params="side_thumbs">
+
+        <!-- Initialize the global array for thumbnails -->
+        def(global.thumbarray_forside, array);
+        set(thumbcount_forside, 0);
+        set(side_thumbs, 'Doljo'); 
+
+        trace('Selected barangay for side: ', side_thumbs);
+
+        <!-- Populate the thumbarray_forside with matching scenes -->
+        for(set(i, 0), i LT scene.count, inc(i),
+            trace('Processing scene index: ', i);
+            trace('Scene name: ', scene[get(i)].name);
+            trace('Scene type: ', scene[get(i)].type);
+            trace('Scene barangay: ', scene[get(i)].barangay);
+
+            if(isvalue(scene[get(i)].thumburl) 
+            AND scene[get(i)].skipthumb != true 
+            AND scene[get(i)].barangay == side_thumbs 
+            AND scene[get(i)].type == Accomodation 
+            AND scene[get(i)].head == true,
+                trace('Adding scene to thumbarray_forside: ', scene[get(i)].name);
+                set(thumbarray_forside[get(thumbcount_forside)], get(scene[get(i)]));
+                set(scene[get(i)].sceneindex, get(i));
+                set(scene[get(i)].thumbindex, get(thumbcount_forside));
+                inc(thumbcount_forside);
+            );
+        );
+
+        trace('Total thumbnails to add: ', thumbcount_forside);
+
+        <!-- Check if thumbs are enabled in settings -->
+        if(skin_settings.thumbs == false,
+            set(layer[skin_btn_thumbs].visible, false);
+        ,
+            copy(thumbwidth, skin_settings.thumbs_width);
+            copy(thumbheight, skin_settings.thumbs_height);
+            copy(thumbpadding, skin_settings.thumbs_padding);
+            copy(thumbcrop, skin_settings.thumbs_crop);
+
+            calc(thumbxoffset, thumbwidth + thumbpadding);
+            calc(thumbxcenter, thumbxoffset * 0.5);
+            calc(thumbbarwidth, thumbxoffset * thumbcount_forside + thumbpadding);
+            calc(thumbbarheight, thumbpadding + thumbheight + thumbpadding);
+
+            trace('thumbwidth: ', thumbwidth);
+            trace('thumbheight: ', thumbheight);
+            trace('thumbpadding: ', thumbpadding);
+            trace('thumbcrop: ', thumbcrop);
+            trace('thumbxoffset: ', thumbxoffset);
+            trace('thumbxcenter: ', thumbxcenter);
+            trace('thumbbarwidth: ', thumbbarwidth);
+            trace('thumbbarheight: ', thumbbarheight);
+
+            <!-- Set up the thumbnail container layer -->
+            <!-- set(layer[scrollarea], width=get(thumbbarwidth), height=get(thumbbarheight));
+
+            calc(layer[scrollarea_scrollleft].y, thumbbarheight * 0.5);
+            calc(layer[scrollarea_scrollright].y, thumbbarheight * 0.5); -->
+
+            <!-- Add thumbnail layers -->
+            for(set(i, 0), i LT thumbcount_forside, inc(i),
+                copy(currentscene, thumbarray_forside[get(i)]);
+
+                calc(thumbname_side, 'skin_thumb_' + i);
+                addlayer(get(thumbname_side));
+
+                trace('Creating thumbnail layer: ', get(thumbname_side));
+
+                set(layer[get(thumbname_side)],
+                    url=get(currentscene.thumburl),
+                    keep=true,
+                    parent='scrollarea_Doljo_Accomodation',
+                    bgroundedge=get(skin_settings.design_thumbborder_bgroundedge),
+                    align='top',
+                    crop=get(thumbcrop),
+                    width=get(thumbwidth),
+                    height=get(thumbheight),
+                    x=calc(thumbpadding + i * thumbxoffset),
+                    y=get(thumbpadding),
+                    linkedscene=get(currentscene.name),
+                    onclick='copy(layer[skin_thumbborder].parent, name); skin_loadscene(get(linkedscene), get(skin_settings.loadscene_blend));'
+                );
+
+                if(device.mobile,
+                    set(layer[get(thumbname_side)].scale, 1.5);
+                );
+
+                if(device.desktop,
+                    set(layer[get(thumbname_side)].scale, .85);
+                );
+
+                trace('Thumbnail layer properties set for: ', get(thumbname_side));
+                trace('URL: ', get(currentscene.thumburl));
+                trace('Keep: true');
+                trace('Parent: ' + get(parent));
+                trace('Background edge: ', get(skin_settings.design_thumbborder_bgroundedge));
+                trace('Align: top');
+                trace('Crop: ', get(thumbcrop));
+                trace('Width: ', get(thumbwidth));
+                trace('Height: ', get(thumbheight));
+                trace('X position: ', calc(thumbpadding + i * thumbxoffset));
+                trace('Y position: ', get(thumbpadding));
+                trace('Linked scene: ', get(currentscene.name));
+
+                set(currentscene, 
+                    thumbx=calc(thumbpadding + i * thumbxoffset + thumbxcenter),
+                    thumby=get(thumbpadding)
+                );
+
+                if(skin_settings.tooltips_thumbs,
+                    set(layer[get(thumbname_side)].tooltip, get(currentscene.place));
+                    layer[get(thumbname_side)].loadstyle(skin_tooltips);
+                    trace('Tooltip set for thumbnail: ', get(currentscene.place));
+                );
+
+                if(skin_settings.thumbs_text,
+                    calc(thumbtext, 'skin_thumbtext_' + i);
+                    addlayer(get(thumbtext));
+                    layer[get(thumbtext)].loadstyle(skin_thumbtext_style);
+                    set(layer[get(thumbtext)], 
+                        keep=true, 
+                        parent=get(thumbname_side), 
+                        html=get(currentscene.place),
+                        css='font-size:12px;color:white;font-family:Atma;text-align:center;',
+                        edge='centertop',
+                        y='-5%'
+                    );
+                    trace('Text layer properties set for: ', get(thumbtext));
+                );
+
+            );
+
+            if(thumbcount_forside == 1,
+                set(layer[scrollarea].align, 'top');
+                trace('Align set to top for single thumbnail.');
+            );
+        );
+    </action>
+
+    <action name="Doljo_Restaurant" scope="local" params="side_thumbs">
+        set(layer[scrollarea_Doljo_Accomodation].visible, false);
+        set(layer[scrollarea_Doljo_Restaurant].visible, true);
+        set(layer[scrollarea_Doljo_Other].visible, false);
+
+        <!-- Initialize the global array for thumbnails -->
+        def(global.thumbarray_forside, array);
+        set(thumbcount_forside, 0);
+        set(side_thumbs, 'Doljo'); 
+
+        trace('Selected barangay for side: ', side_thumbs);
+
+        <!-- Populate the thumbarray_forside with matching scenes -->
+        for(set(i, 0), i LT scene.count, inc(i),
+            trace('Processing scene index: ', i);
+            trace('Scene name: ', scene[get(i)].name);
+            trace('Scene type: ', scene[get(i)].type);
+            trace('Scene barangay: ', scene[get(i)].barangay);
+
+            if(isvalue(scene[get(i)].thumburl) 
+            AND scene[get(i)].skipthumb != true 
+            AND scene[get(i)].barangay == side_thumbs 
+            AND scene[get(i)].type == Restaurant 
+            AND scene[get(i)].head == true,
+                trace('Adding scene to thumbarray_forside: ', scene[get(i)].name);
+                set(thumbarray_forside[get(thumbcount_forside)], get(scene[get(i)]));
+                set(scene[get(i)].sceneindex, get(i));
+                set(scene[get(i)].thumbindex, get(thumbcount_forside));
+                inc(thumbcount_forside);
+            );
+        );
+
+        trace('Total thumbnails to add: ', thumbcount_forside);
+
+        <!-- Check if thumbs are enabled in settings -->
+        if(skin_settings.thumbs == false,
+            set(layer[skin_btn_thumbs].visible, false);
+        ,
+            copy(thumbwidth, skin_settings.thumbs_width);
+            copy(thumbheight, skin_settings.thumbs_height);
+            copy(thumbpadding, skin_settings.thumbs_padding);
+            copy(thumbcrop, skin_settings.thumbs_crop);
+
+            calc(thumbxoffset, thumbwidth + thumbpadding);
+            calc(thumbxcenter, thumbxoffset * 0.5);
+            calc(thumbbarwidth, thumbxoffset * thumbcount_forside + thumbpadding);
+            calc(thumbbarheight, thumbpadding + thumbheight + thumbpadding);
+
+            trace('thumbwidth: ', thumbwidth);
+            trace('thumbheight: ', thumbheight);
+            trace('thumbpadding: ', thumbpadding);
+            trace('thumbcrop: ', thumbcrop);
+            trace('thumbxoffset: ', thumbxoffset);
+            trace('thumbxcenter: ', thumbxcenter);
+            trace('thumbbarwidth: ', thumbbarwidth);
+            trace('thumbbarheight: ', thumbbarheight);
+
+            <!-- Set up the thumbnail container layer -->
+            <!-- set(layer[scrollarea], width=get(thumbbarwidth), height=get(thumbbarheight));
+
+            calc(layer[scrollarea_scrollleft].y, thumbbarheight * 0.5);
+            calc(layer[scrollarea_scrollright].y, thumbbarheight * 0.5); -->
+
+            <!-- Add thumbnail layers -->
+            for(set(i, 0), i LT thumbcount_forside, inc(i),
+                copy(currentscene, thumbarray_forside[get(i)]);
+
+                calc(thumbname_side, 'skin_thumb_' + i);
+                addlayer(get(thumbname_side));
+
+                trace('Creating thumbnail layer: ', get(thumbname_side));
+
+                set(layer[get(thumbname_side)],
+                    url=get(currentscene.thumburl),
+                    keep=true,
+                    parent='scrollarea_Doljo_Restaurant',
+                    bgroundedge=get(skin_settings.design_thumbborder_bgroundedge),
+                    align='top',
+                    crop=get(thumbcrop),
+                    width=get(thumbwidth),
+                    height=get(thumbheight),
+                    x=calc(thumbpadding + i * thumbxoffset),
+                    y=get(thumbpadding),
+                    linkedscene=get(currentscene.name),
+                    onclick='copy(layer[skin_thumbborder].parent, name); skin_loadscene(get(linkedscene), get(skin_settings.loadscene_blend));'
+                );
+
+                if(device.mobile,
+                    set(layer[get(thumbname_side)].scale, 1.5);
+                );
+
+                if(device.desktop,
+                    set(layer[get(thumbname_side)].scale, .85);
+                );
+
+                trace('Thumbnail layer properties set for: ', get(thumbname_side));
+                trace('URL: ', get(currentscene.thumburl));
+                trace('Keep: true');
+                trace('Parent: ' + get(parent));
+                trace('Background edge: ', get(skin_settings.design_thumbborder_bgroundedge));
+                trace('Align: top');
+                trace('Crop: ', get(thumbcrop));
+                trace('Width: ', get(thumbwidth));
+                trace('Height: ', get(thumbheight));
+                trace('X position: ', calc(thumbpadding + i * thumbxoffset));
+                trace('Y position: ', get(thumbpadding));
+                trace('Linked scene: ', get(currentscene.name));
+
+                set(currentscene, 
+                    thumbx=calc(thumbpadding + i * thumbxoffset + thumbxcenter),
+                    thumby=get(thumbpadding)
+                );
+
+                if(skin_settings.tooltips_thumbs,
+                    set(layer[get(thumbname_side)].tooltip, get(currentscene.place));
+                    layer[get(thumbname_side)].loadstyle(skin_tooltips);
+                    trace('Tooltip set for thumbnail: ', get(currentscene.place));
+                );
+
+                if(skin_settings.thumbs_text,
+                    calc(thumbtext, 'skin_thumbtext_' + i);
+                    addlayer(get(thumbtext));
+                    layer[get(thumbtext)].loadstyle(skin_thumbtext_style);
+                    set(layer[get(thumbtext)], 
+                        keep=true, 
+                        parent=get(thumbname_side), 
+                        html=get(currentscene.place),
+                        css='font-size:12px;color:white;font-family:Atma;text-align:center;',
+                        edge='centertop',
+                        y='-5%'
+                    );
+                    trace('Text layer properties set for: ', get(thumbtext));
+                );
+
+            );
+
+            if(thumbcount_forside == 1,
+                set(layer[scrollarea].align, 'top');
+                trace('Align set to top for single thumbnail.');
+            );
+        );
+    </action>
+
+    <action name="Doljo_Other" scope="local" params="side_thumbs">
+        set(layer[scrollarea_Doljo_Accomodation].visible, false);
+        set(layer[scrollarea_Doljo_Restaurant].visible, false);
+        set(layer[scrollarea_Doljo_Other].visible, true);
+
+        <!-- Initialize the global array for thumbnails -->
+        def(global.thumbarray_forside, array);
+        set(thumbcount_forside, 0);
+        set(side_thumbs, 'Doljo'); 
+
+        trace('Selected barangay for side: ', side_thumbs);
+
+        <!-- Populate the thumbarray_forside with matching scenes -->
+        for(set(i, 0), i LT scene.count, inc(i),
+            trace('Processing scene index: ', i);
+            trace('Scene name: ', scene[get(i)].name);
+            trace('Scene type: ', scene[get(i)].type);
+            trace('Scene barangay: ', scene[get(i)].barangay);
+
+            if(isvalue(scene[get(i)].thumburl) 
+            AND scene[get(i)].skipthumb != true 
+            AND scene[get(i)].barangay == side_thumbs 
+            AND scene[get(i)].type == Other 
+            AND scene[get(i)].head == true,
+                trace('Adding scene to thumbarray_forside: ', scene[get(i)].name);
+                set(thumbarray_forside[get(thumbcount_forside)], get(scene[get(i)]));
+                set(scene[get(i)].sceneindex, get(i));
+                set(scene[get(i)].thumbindex, get(thumbcount_forside));
+                inc(thumbcount_forside);
+            );
+        );
+
+        trace('Total thumbnails to add: ', thumbcount_forside);
+
+        <!-- Check if thumbs are enabled in settings -->
+        if(skin_settings.thumbs == false,
+            set(layer[skin_btn_thumbs].visible, false);
+        ,
+            copy(thumbwidth, skin_settings.thumbs_width);
+            copy(thumbheight, skin_settings.thumbs_height);
+            copy(thumbpadding, skin_settings.thumbs_padding);
+            copy(thumbcrop, skin_settings.thumbs_crop);
+
+            calc(thumbxoffset, thumbwidth + thumbpadding);
+            calc(thumbxcenter, thumbxoffset * 0.5);
+            calc(thumbbarwidth, thumbxoffset * thumbcount_forside + thumbpadding);
+            calc(thumbbarheight, thumbpadding + thumbheight + thumbpadding);
+
+            trace('thumbwidth: ', thumbwidth);
+            trace('thumbheight: ', thumbheight);
+            trace('thumbpadding: ', thumbpadding);
+            trace('thumbcrop: ', thumbcrop);
+            trace('thumbxoffset: ', thumbxoffset);
+            trace('thumbxcenter: ', thumbxcenter);
+            trace('thumbbarwidth: ', thumbbarwidth);
+            trace('thumbbarheight: ', thumbbarheight);
+
+            <!-- Set up the thumbnail container layer -->
+            <!-- set(layer[scrollarea], width=get(thumbbarwidth), height=get(thumbbarheight));
+
+            calc(layer[scrollarea_scrollleft].y, thumbbarheight * 0.5);
+            calc(layer[scrollarea_scrollright].y, thumbbarheight * 0.5); -->
+
+            <!-- Add thumbnail layers -->
+            for(set(i, 0), i LT thumbcount_forside, inc(i),
+                copy(currentscene, thumbarray_forside[get(i)]);
+
+                calc(thumbname_side, 'skin_thumb_' + i);
+                addlayer(get(thumbname_side));
+
+                trace('Creating thumbnail layer: ', get(thumbname_side));
+
+                set(layer[get(thumbname_side)],
+                    url=get(currentscene.thumburl),
+                    keep=true,
+                    parent='scrollarea_Doljo_Other',
+                    bgroundedge=get(skin_settings.design_thumbborder_bgroundedge),
+                    align='top',
+                    crop=get(thumbcrop),
+                    width=get(thumbwidth),
+                    height=get(thumbheight),
+                    x=calc(thumbpadding + i * thumbxoffset),
+                    y=get(thumbpadding),
+                    linkedscene=get(currentscene.name),
+                    onclick='copy(layer[skin_thumbborder].parent, name); skin_loadscene(get(linkedscene), get(skin_settings.loadscene_blend));'
+                );
+
+                if(device.mobile,
+                    set(layer[get(thumbname_side)].scale, 1.5);
+                );
+
+                if(device.desktop,
+                    set(layer[get(thumbname_side)].scale, .85);
+                );
+
+                trace('Thumbnail layer properties set for: ', get(thumbname_side));
+                trace('URL: ', get(currentscene.thumburl));
+                trace('Keep: true');
+                trace('Parent: ' + get(parent));
+                trace('Background edge: ', get(skin_settings.design_thumbborder_bgroundedge));
+                trace('Align: top');
+                trace('Crop: ', get(thumbcrop));
+                trace('Width: ', get(thumbwidth));
+                trace('Height: ', get(thumbheight));
+                trace('X position: ', calc(thumbpadding + i * thumbxoffset));
+                trace('Y position: ', get(thumbpadding));
+                trace('Linked scene: ', get(currentscene.name));
+
+                set(currentscene, 
+                    thumbx=calc(thumbpadding + i * thumbxoffset + thumbxcenter),
+                    thumby=get(thumbpadding)
+                );
+
+                if(skin_settings.tooltips_thumbs,
+                    set(layer[get(thumbname_side)].tooltip, get(currentscene.place));
+                    layer[get(thumbname_side)].loadstyle(skin_tooltips);
+                    trace('Tooltip set for thumbnail: ', get(currentscene.place));
+                );
+
+                if(skin_settings.thumbs_text,
+                    calc(thumbtext, 'skin_thumbtext_' + i);
+                    addlayer(get(thumbtext));
+                    layer[get(thumbtext)].loadstyle(skin_thumbtext_style);
+                    set(layer[get(thumbtext)], 
+                        keep=true, 
+                        parent=get(thumbname_side), 
+                        html=get(currentscene.place),
+                        css='font-size:12px;color:white;font-family:Atma;text-align:center;',
+                        edge='centertop',
+                        y='-5%'
+                    );
+                    trace('Text layer properties set for: ', get(thumbtext));
+                );
+
+            );
+
+            if(thumbcount_forside == 1,
+                set(layer[scrollarea].align, 'top');
+                trace('Align set to top for single thumbnail.');
+            );
+        );
+    </action>
+
+
+    <!-- POBLACION -->
+    <!-- POBLACION -->
+    <!-- POBLACION -->
+    <!-- POBLACION -->
+    <!-- POBLACION -->
+    <!-- POBLACION -->
+    <!-- POBLACION -->
+    <!-- POBLACION -->
+    <!-- POBLACION -->
+    <!-- POBLACION -->
+    <!-- POBLACION -->
+    <!-- POBLACION -->
+    <!-- POBLACION -->
+    <!-- POBLACION -->
+    <!-- POBLACION -->
+
+    <action name="Poblacion_Accomodation" scope="local" params="side_thumbs">
+        <!-- Initialize the global array for thumbnails -->
+        def(global.thumbarray_forside, array);
+        set(thumbcount_forside, 0);
+        set(side_thumbs, 'Poblacion'); 
+
+        trace('Selected barangay for side: ', side_thumbs);
+
+        <!-- Populate the thumbarray_forside with matching scenes -->
+        for(set(i, 0), i LT scene.count, inc(i),
+            trace('Processing scene index: ', i);
+            trace('Scene name: ', scene[get(i)].name);
+            trace('Scene type: ', scene[get(i)].type);
+            trace('Scene barangay: ', scene[get(i)].barangay);
+
+            if(isvalue(scene[get(i)].thumburl) 
+            AND scene[get(i)].skipthumb != true 
+            AND scene[get(i)].barangay == side_thumbs 
+            AND scene[get(i)].type == Accomodation 
+            AND scene[get(i)].head == true,
+                trace('Adding scene to thumbarray_forside: ', scene[get(i)].name);
+                set(thumbarray_forside[get(thumbcount_forside)], get(scene[get(i)]));
+                set(scene[get(i)].sceneindex, get(i));
+                set(scene[get(i)].thumbindex, get(thumbcount_forside));
+                inc(thumbcount_forside);
+            );
+        );
+
+        trace('Total thumbnails to add: ', thumbcount_forside);
+
+        <!-- Check if thumbs are enabled in settings -->
+        if(skin_settings.thumbs == false,
+            set(layer[skin_btn_thumbs].visible, false);
+        ,
+            copy(thumbwidth, skin_settings.thumbs_width);
+            copy(thumbheight, skin_settings.thumbs_height);
+            copy(thumbpadding, skin_settings.thumbs_padding);
+            copy(thumbcrop, skin_settings.thumbs_crop);
+
+            calc(thumbxoffset, thumbwidth + thumbpadding);
+            calc(thumbxcenter, thumbxoffset * 0.5);
+            calc(thumbbarwidth, thumbxoffset * thumbcount_forside + thumbpadding);
+            calc(thumbbarheight, thumbpadding + thumbheight + thumbpadding);
+
+            trace('thumbwidth: ', thumbwidth);
+            trace('thumbheight: ', thumbheight);
+            trace('thumbpadding: ', thumbpadding);
+            trace('thumbcrop: ', thumbcrop);
+            trace('thumbxoffset: ', thumbxoffset);
+            trace('thumbxcenter: ', thumbxcenter);
+            trace('thumbbarwidth: ', thumbbarwidth);
+            trace('thumbbarheight: ', thumbbarheight);
+
+            <!-- Set up the thumbnail container layer -->
+            <!-- set(layer[scrollarea], width=get(thumbbarwidth), height=get(thumbbarheight));
+
+            calc(layer[scrollarea_scrollleft].y, thumbbarheight * 0.5);
+            calc(layer[scrollarea_scrollright].y, thumbbarheight * 0.5); -->
+
+            <!-- Add thumbnail layers -->
+            for(set(i, 0), i LT thumbcount_forside, inc(i),
+                copy(currentscene, thumbarray_forside[get(i)]);
+
+                calc(thumbname_side, 'skin_thumb_' + i);
+                addlayer(get(thumbname_side));
+
+                trace('Creating thumbnail layer: ', get(thumbname_side));
+
+                set(layer[get(thumbname_side)],
+                    url=get(currentscene.thumburl),
+                    keep=true,
+                    parent='scrollarea_Poblacion_Accomodation',
+                    bgroundedge=get(skin_settings.design_thumbborder_bgroundedge),
+                    align='top',
+                    crop=get(thumbcrop),
+                    width=get(thumbwidth),
+                    height=get(thumbheight),
+                    x=calc(thumbpadding + i * thumbxoffset),
+                    y=get(thumbpadding),
+                    linkedscene=get(currentscene.name),
+                    onclick='copy(layer[skin_thumbborder].parent, name); skin_loadscene(get(linkedscene), get(skin_settings.loadscene_blend));'
+                );
+
+                if(device.mobile,
+                    set(layer[get(thumbname_side)].scale, 1.5);
+                );
+
+                if(device.desktop,
+                    set(layer[get(thumbname_side)].scale, .85);
+                );
+
+                trace('Thumbnail layer properties set for: ', get(thumbname_side));
+                trace('URL: ', get(currentscene.thumburl));
+                trace('Keep: true');
+                trace('Parent: ' + get(parent));
+                trace('Background edge: ', get(skin_settings.design_thumbborder_bgroundedge));
+                trace('Align: top');
+                trace('Crop: ', get(thumbcrop));
+                trace('Width: ', get(thumbwidth));
+                trace('Height: ', get(thumbheight));
+                trace('X position: ', calc(thumbpadding + i * thumbxoffset));
+                trace('Y position: ', get(thumbpadding));
+                trace('Linked scene: ', get(currentscene.name));
+
+                set(currentscene, 
+                    thumbx=calc(thumbpadding + i * thumbxoffset + thumbxcenter),
+                    thumby=get(thumbpadding)
+                );
+
+                if(skin_settings.tooltips_thumbs,
+                    set(layer[get(thumbname_side)].tooltip, get(currentscene.place));
+                    layer[get(thumbname_side)].loadstyle(skin_tooltips);
+                    trace('Tooltip set for thumbnail: ', get(currentscene.place));
+                );
+
+                if(skin_settings.thumbs_text,
+                    calc(thumbtext, 'skin_thumbtext_' + i);
+                    addlayer(get(thumbtext));
+                    layer[get(thumbtext)].loadstyle(skin_thumbtext_style);
+                    set(layer[get(thumbtext)], 
+                        keep=true, 
+                        parent=get(thumbname_side), 
+                        html=get(currentscene.place),
+                        css='font-size:12px;color:white;font-family:Atma;text-align:center;',
+                        edge='centertop',
+                        y='-5%'
+                    );
+                    trace('Text layer properties set for: ', get(thumbtext));
+                );
+
+            );
+
+            if(thumbcount_forside == 1,
+                set(layer[scrollarea].align, 'top');
+                trace('Align set to top for single thumbnail.');
+            );
+        );
+    </action>
+
+    <action name="Poblacion_Restaurant" scope="local" params="side_thumbs">
+
+        <!-- Initialize the global array for thumbnails -->
+        def(global.thumbarray_forside, array);
+        set(thumbcount_forside, 0);
+        set(side_thumbs, 'Poblacion'); 
+
+        trace('Selected barangay for side: ', side_thumbs);
+
+        <!-- Populate the thumbarray_forside with matching scenes -->
+        for(set(i, 0), i LT scene.count, inc(i),
+            trace('Processing scene index: ', i);
+            trace('Scene name: ', scene[get(i)].name);
+            trace('Scene type: ', scene[get(i)].type);
+            trace('Scene barangay: ', scene[get(i)].barangay);
+
+            if(isvalue(scene[get(i)].thumburl) 
+            AND scene[get(i)].skipthumb != true 
+            AND scene[get(i)].barangay == side_thumbs 
+            AND scene[get(i)].type == Restaurant 
+            AND scene[get(i)].head == true,
+                trace('Adding scene to thumbarray_forside: ', scene[get(i)].name);
+                set(thumbarray_forside[get(thumbcount_forside)], get(scene[get(i)]));
+                set(scene[get(i)].sceneindex, get(i));
+                set(scene[get(i)].thumbindex, get(thumbcount_forside));
+                inc(thumbcount_forside);
+            );
+        );
+
+        trace('Total thumbnails to add: ', thumbcount_forside);
+
+        <!-- Check if thumbs are enabled in settings -->
+        if(skin_settings.thumbs == false,
+            set(layer[skin_btn_thumbs].visible, false);
+        ,
+            copy(thumbwidth, skin_settings.thumbs_width);
+            copy(thumbheight, skin_settings.thumbs_height);
+            copy(thumbpadding, skin_settings.thumbs_padding);
+            copy(thumbcrop, skin_settings.thumbs_crop);
+
+            calc(thumbxoffset, thumbwidth + thumbpadding);
+            calc(thumbxcenter, thumbxoffset * 0.5);
+            calc(thumbbarwidth, thumbxoffset * thumbcount_forside + thumbpadding);
+            calc(thumbbarheight, thumbpadding + thumbheight + thumbpadding);
+
+            trace('thumbwidth: ', thumbwidth);
+            trace('thumbheight: ', thumbheight);
+            trace('thumbpadding: ', thumbpadding);
+            trace('thumbcrop: ', thumbcrop);
+            trace('thumbxoffset: ', thumbxoffset);
+            trace('thumbxcenter: ', thumbxcenter);
+            trace('thumbbarwidth: ', thumbbarwidth);
+            trace('thumbbarheight: ', thumbbarheight);
+
+            <!-- Set up the thumbnail container layer -->
+            <!-- set(layer[scrollarea], width=get(thumbbarwidth), height=get(thumbbarheight));
+
+            calc(layer[scrollarea_scrollleft].y, thumbbarheight * 0.5);
+            calc(layer[scrollarea_scrollright].y, thumbbarheight * 0.5); -->
+
+            <!-- Add thumbnail layers -->
+            for(set(i, 0), i LT thumbcount_forside, inc(i),
+                copy(currentscene, thumbarray_forside[get(i)]);
+
+                calc(thumbname_side, 'skin_thumb_' + i);
+                addlayer(get(thumbname_side));
+
+                trace('Creating thumbnail layer: ', get(thumbname_side));
+
+                set(layer[get(thumbname_side)],
+                    url=get(currentscene.thumburl),
+                    keep=true,
+                    parent='scrollarea_Poblacion_Restaurant',
+                    bgroundedge=get(skin_settings.design_thumbborder_bgroundedge),
+                    align='top',
+                    crop=get(thumbcrop),
+                    width=get(thumbwidth),
+                    height=get(thumbheight),
+                    x=calc(thumbpadding + i * thumbxoffset),
+                    y=get(thumbpadding),
+                    linkedscene=get(currentscene.name),
+                    onclick='copy(layer[skin_thumbborder].parent, name); skin_loadscene(get(linkedscene), get(skin_settings.loadscene_blend));'
+                );
+
+                if(device.mobile,
+                    set(layer[get(thumbname_side)].scale, 1.5);
+                );
+
+                if(device.desktop,
+                    set(layer[get(thumbname_side)].scale, .85);
+                );
+
+                trace('Thumbnail layer properties set for: ', get(thumbname_side));
+                trace('URL: ', get(currentscene.thumburl));
+                trace('Keep: true');
+                trace('Parent: ' + get(parent));
+                trace('Background edge: ', get(skin_settings.design_thumbborder_bgroundedge));
+                trace('Align: top');
+                trace('Crop: ', get(thumbcrop));
+                trace('Width: ', get(thumbwidth));
+                trace('Height: ', get(thumbheight));
+                trace('X position: ', calc(thumbpadding + i * thumbxoffset));
+                trace('Y position: ', get(thumbpadding));
+                trace('Linked scene: ', get(currentscene.name));
+
+                set(currentscene, 
+                    thumbx=calc(thumbpadding + i * thumbxoffset + thumbxcenter),
+                    thumby=get(thumbpadding)
+                );
+
+                if(skin_settings.tooltips_thumbs,
+                    set(layer[get(thumbname_side)].tooltip, get(currentscene.place));
+                    layer[get(thumbname_side)].loadstyle(skin_tooltips);
+                    trace('Tooltip set for thumbnail: ', get(currentscene.place));
+                );
+
+                if(skin_settings.thumbs_text,
+                    calc(thumbtext, 'skin_thumbtext_' + i);
+                    addlayer(get(thumbtext));
+                    layer[get(thumbtext)].loadstyle(skin_thumbtext_style);
+                    set(layer[get(thumbtext)], 
+                        keep=true, 
+                        parent=get(thumbname_side), 
+                        html=get(currentscene.place),
+                        css='font-size:12px;color:white;font-family:Atma;text-align:center;',
+                        edge='centertop',
+                        y='-5%'
+                    );
+                    trace('Text layer properties set for: ', get(thumbtext));
+                );
+
+            );
+
+            if(thumbcount_forside == 1,
+                set(layer[scrollarea].align, 'top');
+                trace('Align set to top for single thumbnail.');
+            );
+        );
+    </action>
+
+    <action name="Poblacion_Other" scope="local" params="side_thumbs">
+
+        <!-- Initialize the global array for thumbnails -->
+        def(global.thumbarray_forside, array);
+        set(thumbcount_forside, 0);
+        set(side_thumbs, 'Poblacion'); 
+
+        trace('Selected barangay for side: ', side_thumbs);
+
+        <!-- Populate the thumbarray_forside with matching scenes -->
+        for(set(i, 0), i LT scene.count, inc(i),
+            trace('Processing scene index: ', i);
+            trace('Scene name: ', scene[get(i)].name);
+            trace('Scene type: ', scene[get(i)].type);
+            trace('Scene barangay: ', scene[get(i)].barangay);
+
+            if(isvalue(scene[get(i)].thumburl) 
+            AND scene[get(i)].skipthumb != true 
+            AND scene[get(i)].barangay == side_thumbs 
+            AND scene[get(i)].type == Other 
+            AND scene[get(i)].head == true,
+                trace('Adding scene to thumbarray_forside: ', scene[get(i)].name);
+                set(thumbarray_forside[get(thumbcount_forside)], get(scene[get(i)]));
+                set(scene[get(i)].sceneindex, get(i));
+                set(scene[get(i)].thumbindex, get(thumbcount_forside));
+                inc(thumbcount_forside);
+            );
+        );
+
+        trace('Total thumbnails to add: ', thumbcount_forside);
+
+        <!-- Check if thumbs are enabled in settings -->
+        if(skin_settings.thumbs == false,
+            set(layer[skin_btn_thumbs].visible, false);
+        ,
+            copy(thumbwidth, skin_settings.thumbs_width);
+            copy(thumbheight, skin_settings.thumbs_height);
+            copy(thumbpadding, skin_settings.thumbs_padding);
+            copy(thumbcrop, skin_settings.thumbs_crop);
+
+            calc(thumbxoffset, thumbwidth + thumbpadding);
+            calc(thumbxcenter, thumbxoffset * 0.5);
+            calc(thumbbarwidth, thumbxoffset * thumbcount_forside + thumbpadding);
+            calc(thumbbarheight, thumbpadding + thumbheight + thumbpadding);
+
+            trace('thumbwidth: ', thumbwidth);
+            trace('thumbheight: ', thumbheight);
+            trace('thumbpadding: ', thumbpadding);
+            trace('thumbcrop: ', thumbcrop);
+            trace('thumbxoffset: ', thumbxoffset);
+            trace('thumbxcenter: ', thumbxcenter);
+            trace('thumbbarwidth: ', thumbbarwidth);
+            trace('thumbbarheight: ', thumbbarheight);
+
+            <!-- Set up the thumbnail container layer -->
+            <!-- set(layer[scrollarea], width=get(thumbbarwidth), height=get(thumbbarheight));
+
+            calc(layer[scrollarea_scrollleft].y, thumbbarheight * 0.5);
+            calc(layer[scrollarea_scrollright].y, thumbbarheight * 0.5); -->
+
+            <!-- Add thumbnail layers -->
+            for(set(i, 0), i LT thumbcount_forside, inc(i),
+                copy(currentscene, thumbarray_forside[get(i)]);
+
+                calc(thumbname_side, 'skin_thumb_' + i);
+                addlayer(get(thumbname_side));
+
+                trace('Creating thumbnail layer: ', get(thumbname_side));
+
+                set(layer[get(thumbname_side)],
+                    url=get(currentscene.thumburl),
+                    keep=true,
+                    parent='scrollarea_Poblacion_Other',
+                    bgroundedge=get(skin_settings.design_thumbborder_bgroundedge),
+                    align='top',
+                    crop=get(thumbcrop),
+                    width=get(thumbwidth),
+                    height=get(thumbheight),
+                    x=calc(thumbpadding + i * thumbxoffset),
+                    y=get(thumbpadding),
+                    linkedscene=get(currentscene.name),
+                    onclick='copy(layer[skin_thumbborder].parent, name); skin_loadscene(get(linkedscene), get(skin_settings.loadscene_blend));'
+                );
+
+                if(device.mobile,
+                    set(layer[get(thumbname_side)].scale, 1.5);
+                );
+
+                if(device.desktop,
+                    set(layer[get(thumbname_side)].scale, .85);
+                );
+
+                trace('Thumbnail layer properties set for: ', get(thumbname_side));
+                trace('URL: ', get(currentscene.thumburl));
+                trace('Keep: true');
+                trace('Parent: ' + get(parent));
+                trace('Background edge: ', get(skin_settings.design_thumbborder_bgroundedge));
+                trace('Align: top');
+                trace('Crop: ', get(thumbcrop));
+                trace('Width: ', get(thumbwidth));
+                trace('Height: ', get(thumbheight));
+                trace('X position: ', calc(thumbpadding + i * thumbxoffset));
+                trace('Y position: ', get(thumbpadding));
+                trace('Linked scene: ', get(currentscene.name));
+
+                set(currentscene, 
+                    thumbx=calc(thumbpadding + i * thumbxoffset + thumbxcenter),
+                    thumby=get(thumbpadding)
+                );
+
+                if(skin_settings.tooltips_thumbs,
+                    set(layer[get(thumbname_side)].tooltip, get(currentscene.place));
+                    layer[get(thumbname_side)].loadstyle(skin_tooltips);
+                    trace('Tooltip set for thumbnail: ', get(currentscene.place));
+                );
+
+                if(skin_settings.thumbs_text,
+                    calc(thumbtext, 'skin_thumbtext_' + i);
+                    addlayer(get(thumbtext));
+                    layer[get(thumbtext)].loadstyle(skin_thumbtext_style);
+                    set(layer[get(thumbtext)], 
+                        keep=true, 
+                        parent=get(thumbname_side), 
+                        html=get(currentscene.place),
+                        css='font-size:12px;color:white;font-family:Atma;text-align:center;',
+                        edge='centertop',
+                        y='-5%'
+                    );
+                    trace('Text layer properties set for: ', get(thumbtext));
+                );
+
+            );
+
+            if(thumbcount_forside == 1,
+                set(layer[scrollarea].align, 'top');
+                trace('Align set to top for single thumbnail.');
+            );
+        );
+    </action>
+
+    <!-- Tawala -->
+    <!-- Tawala -->
+    <!-- Tawala -->
+    <!-- Tawala -->
+    <!-- Tawala -->
+    <!-- Tawala -->
+    <!-- Tawala -->
+    <!-- Tawala -->
+    <!-- Tawala -->
+    <!-- Tawala -->
+    <!-- Tawala -->
+    <!-- Tawala -->
+    <!-- Tawala -->
+    <!-- Tawala -->
+    <!-- Tawala -->
+
+    <action name="Tawala_Accomodation" scope="local" params="side_thumbs">
+
+        <!-- Initialize the global array for thumbnails -->
+        def(global.thumbarray_forside, array);
+        set(thumbcount_forside, 0);
+        set(side_thumbs, 'Tawala'); 
+
+        trace('Selected barangay for side: ', side_thumbs);
+
+        <!-- Populate the thumbarray_forside with matching scenes -->
+        for(set(i, 0), i LT scene.count, inc(i),
+            trace('Processing scene index: ', i);
+            trace('Scene name: ', scene[get(i)].name);
+            trace('Scene type: ', scene[get(i)].type);
+            trace('Scene barangay: ', scene[get(i)].barangay);
+
+            if(isvalue(scene[get(i)].thumburl) 
+            AND scene[get(i)].skipthumb != true 
+            AND scene[get(i)].barangay == side_thumbs 
+            AND scene[get(i)].type == Accomodation 
+            AND scene[get(i)].head == true,
+                trace('Adding scene to thumbarray_forside: ', scene[get(i)].name);
+                set(thumbarray_forside[get(thumbcount_forside)], get(scene[get(i)]));
+                set(scene[get(i)].sceneindex, get(i));
+                set(scene[get(i)].thumbindex, get(thumbcount_forside));
+                inc(thumbcount_forside);
+            );
+        );
+
+        trace('Total thumbnails to add: ', thumbcount_forside);
+
+        <!-- Check if thumbs are enabled in settings -->
+        if(skin_settings.thumbs == false,
+            set(layer[skin_btn_thumbs].visible, false);
+        ,
+            copy(thumbwidth, skin_settings.thumbs_width);
+            copy(thumbheight, skin_settings.thumbs_height);
+            copy(thumbpadding, skin_settings.thumbs_padding);
+            copy(thumbcrop, skin_settings.thumbs_crop);
+
+            calc(thumbxoffset, thumbwidth + thumbpadding);
+            calc(thumbxcenter, thumbxoffset * 0.5);
+            calc(thumbbarwidth, thumbxoffset * thumbcount_forside + thumbpadding);
+            calc(thumbbarheight, thumbpadding + thumbheight + thumbpadding);
+
+            trace('thumbwidth: ', thumbwidth);
+            trace('thumbheight: ', thumbheight);
+            trace('thumbpadding: ', thumbpadding);
+            trace('thumbcrop: ', thumbcrop);
+            trace('thumbxoffset: ', thumbxoffset);
+            trace('thumbxcenter: ', thumbxcenter);
+            trace('thumbbarwidth: ', thumbbarwidth);
+            trace('thumbbarheight: ', thumbbarheight);
+
+            <!-- Set up the thumbnail container layer -->
+            <!-- set(layer[scrollarea], width=get(thumbbarwidth), height=get(thumbbarheight));
+
+            calc(layer[scrollarea_scrollleft].y, thumbbarheight * 0.5);
+            calc(layer[scrollarea_scrollright].y, thumbbarheight * 0.5); -->
+
+            <!-- Add thumbnail layers -->
+            for(set(i, 0), i LT thumbcount_forside, inc(i),
+                copy(currentscene, thumbarray_forside[get(i)]);
+
+                calc(thumbname_side, 'skin_thumb_' + i);
+                addlayer(get(thumbname_side));
+
+                trace('Creating thumbnail layer: ', get(thumbname_side));
+
+                set(layer[get(thumbname_side)],
+                    url=get(currentscene.thumburl),
+                    keep=true,
+                    parent='scrollarea_Tawala_Accomodation',
+                    bgroundedge=get(skin_settings.design_thumbborder_bgroundedge),
+                    align='top',
+                    crop=get(thumbcrop),
+                    width=get(thumbwidth),
+                    height=get(thumbheight),
+                    x=calc(thumbpadding + i * thumbxoffset),
+                    y=get(thumbpadding),
+                    linkedscene=get(currentscene.name),
+                    onclick='copy(layer[skin_thumbborder].parent, name); skin_loadscene(get(linkedscene), get(skin_settings.loadscene_blend));'
+                );
+
+                if(device.mobile,
+                    set(layer[get(thumbname_side)].scale, 1.5);
+                );
+
+                if(device.desktop,
+                    set(layer[get(thumbname_side)].scale, .85);
+                );
+
+                trace('Thumbnail layer properties set for: ', get(thumbname_side));
+                trace('URL: ', get(currentscene.thumburl));
+                trace('Keep: true');
+                trace('Parent: ' + get(parent));
+                trace('Background edge: ', get(skin_settings.design_thumbborder_bgroundedge));
+                trace('Align: top');
+                trace('Crop: ', get(thumbcrop));
+                trace('Width: ', get(thumbwidth));
+                trace('Height: ', get(thumbheight));
+                trace('X position: ', calc(thumbpadding + i * thumbxoffset));
+                trace('Y position: ', get(thumbpadding));
+                trace('Linked scene: ', get(currentscene.name));
+
+                set(currentscene, 
+                    thumbx=calc(thumbpadding + i * thumbxoffset + thumbxcenter),
+                    thumby=get(thumbpadding)
+                );
+
+                if(skin_settings.tooltips_thumbs,
+                    set(layer[get(thumbname_side)].tooltip, get(currentscene.place));
+                    layer[get(thumbname_side)].loadstyle(skin_tooltips);
+                    trace('Tooltip set for thumbnail: ', get(currentscene.place));
+                );
+
+                if(skin_settings.thumbs_text,
+                    calc(thumbtext, 'skin_thumbtext_' + i);
+                    addlayer(get(thumbtext));
+                    layer[get(thumbtext)].loadstyle(skin_thumbtext_style);
+                    set(layer[get(thumbtext)], 
+                        keep=true, 
+                        parent=get(thumbname_side), 
+                        html=get(currentscene.place),
+                        css='font-size:12px;color:white;font-family:Atma;text-align:center;',
+                        edge='centertop',
+                        y='-5%'
+                    );
+                    trace('Text layer properties set for: ', get(thumbtext));
+                );
+
+            );
+
+            if(thumbcount_forside == 1,
+                set(layer[scrollarea].align, 'top');
+                trace('Align set to top for single thumbnail.');
+            );
+        );
+    </action>
+
+    <action name="Tawala_Restaurant" scope="local" params="side_thumbs">
+
+        <!-- Initialize the global array for thumbnails -->
+        def(global.thumbarray_forside, array);
+        set(thumbcount_forside, 0);
+        set(side_thumbs, 'Tawala'); 
+
+        trace('Selected barangay for side: ', side_thumbs);
+
+        <!-- Populate the thumbarray_forside with matching scenes -->
+        for(set(i, 0), i LT scene.count, inc(i),
+            trace('Processing scene index: ', i);
+            trace('Scene name: ', scene[get(i)].name);
+            trace('Scene type: ', scene[get(i)].type);
+            trace('Scene barangay: ', scene[get(i)].barangay);
+
+            if(isvalue(scene[get(i)].thumburl) 
+            AND scene[get(i)].skipthumb != true 
+            AND scene[get(i)].barangay == side_thumbs 
+            AND scene[get(i)].type == Restaurant 
+            AND scene[get(i)].head == true,
+                trace('Adding scene to thumbarray_forside: ', scene[get(i)].name);
+                set(thumbarray_forside[get(thumbcount_forside)], get(scene[get(i)]));
+                set(scene[get(i)].sceneindex, get(i));
+                set(scene[get(i)].thumbindex, get(thumbcount_forside));
+                inc(thumbcount_forside);
+            );
+        );
+
+        trace('Total thumbnails to add: ', thumbcount_forside);
+
+        <!-- Check if thumbs are enabled in settings -->
+        if(skin_settings.thumbs == false,
+            set(layer[skin_btn_thumbs].visible, false);
+        ,
+            copy(thumbwidth, skin_settings.thumbs_width);
+            copy(thumbheight, skin_settings.thumbs_height);
+            copy(thumbpadding, skin_settings.thumbs_padding);
+            copy(thumbcrop, skin_settings.thumbs_crop);
+
+            calc(thumbxoffset, thumbwidth + thumbpadding);
+            calc(thumbxcenter, thumbxoffset * 0.5);
+            calc(thumbbarwidth, thumbxoffset * thumbcount_forside + thumbpadding);
+            calc(thumbbarheight, thumbpadding + thumbheight + thumbpadding);
+
+            trace('thumbwidth: ', thumbwidth);
+            trace('thumbheight: ', thumbheight);
+            trace('thumbpadding: ', thumbpadding);
+            trace('thumbcrop: ', thumbcrop);
+            trace('thumbxoffset: ', thumbxoffset);
+            trace('thumbxcenter: ', thumbxcenter);
+            trace('thumbbarwidth: ', thumbbarwidth);
+            trace('thumbbarheight: ', thumbbarheight);
+
+            <!-- Set up the thumbnail container layer -->
+            <!-- set(layer[scrollarea], width=get(thumbbarwidth), height=get(thumbbarheight));
+
+            calc(layer[scrollarea_scrollleft].y, thumbbarheight * 0.5);
+            calc(layer[scrollarea_scrollright].y, thumbbarheight * 0.5); -->
+
+            <!-- Add thumbnail layers -->
+            for(set(i, 0), i LT thumbcount_forside, inc(i),
+                copy(currentscene, thumbarray_forside[get(i)]);
+
+                calc(thumbname_side, 'skin_thumb_' + i);
+                addlayer(get(thumbname_side));
+
+                trace('Creating thumbnail layer: ', get(thumbname_side));
+
+                set(layer[get(thumbname_side)],
+                    url=get(currentscene.thumburl),
+                    keep=true,
+                    parent='scrollarea_Tawala_Restaurant',
+                    bgroundedge=get(skin_settings.design_thumbborder_bgroundedge),
+                    align='top',
+                    crop=get(thumbcrop),
+                    width=get(thumbwidth),
+                    height=get(thumbheight),
+                    x=calc(thumbpadding + i * thumbxoffset),
+                    y=get(thumbpadding),
+                    linkedscene=get(currentscene.name),
+                    onclick='copy(layer[skin_thumbborder].parent, name); skin_loadscene(get(linkedscene), get(skin_settings.loadscene_blend));'
+                );
+
+                if(device.mobile,
+                    set(layer[get(thumbname_side)].scale, 1.5);
+                );
+
+                if(device.desktop,
+                    set(layer[get(thumbname_side)].scale, .85);
+                );
+
+                trace('Thumbnail layer properties set for: ', get(thumbname_side));
+                trace('URL: ', get(currentscene.thumburl));
+                trace('Keep: true');
+                trace('Parent: ' + get(parent));
+                trace('Background edge: ', get(skin_settings.design_thumbborder_bgroundedge));
+                trace('Align: top');
+                trace('Crop: ', get(thumbcrop));
+                trace('Width: ', get(thumbwidth));
+                trace('Height: ', get(thumbheight));
+                trace('X position: ', calc(thumbpadding + i * thumbxoffset));
+                trace('Y position: ', get(thumbpadding));
+                trace('Linked scene: ', get(currentscene.name));
+
+                set(currentscene, 
+                    thumbx=calc(thumbpadding + i * thumbxoffset + thumbxcenter),
+                    thumby=get(thumbpadding)
+                );
+
+                if(skin_settings.tooltips_thumbs,
+                    set(layer[get(thumbname_side)].tooltip, get(currentscene.place));
+                    layer[get(thumbname_side)].loadstyle(skin_tooltips);
+                    trace('Tooltip set for thumbnail: ', get(currentscene.place));
+                );
+
+                if(skin_settings.thumbs_text,
+                    calc(thumbtext, 'skin_thumbtext_' + i);
+                    addlayer(get(thumbtext));
+                    layer[get(thumbtext)].loadstyle(skin_thumbtext_style);
+                    set(layer[get(thumbtext)], 
+                        keep=true, 
+                        parent=get(thumbname_side), 
+                        html=get(currentscene.place),
+                        css='font-size:12px;color:white;font-family:Atma;text-align:center;',
+                        edge='centertop',
+                        y='-5%'
+                    );
+                    trace('Text layer properties set for: ', get(thumbtext));
+                );
+
+            );
+
+            if(thumbcount_forside == 1,
+                set(layer[scrollarea].align, 'top');
+                trace('Align set to top for single thumbnail.');
+            );
+        );
+    </action>
+
+    <action name="Tawala_Other" scope="local" params="side_thumbs">
+
+        <!-- Initialize the global array for thumbnails -->
+        def(global.thumbarray_forside, array);
+        set(thumbcount_forside, 0);
+        set(side_thumbs, 'Tawala'); 
+
+        trace('Selected barangay for side: ', side_thumbs);
+
+        <!-- Populate the thumbarray_forside with matching scenes -->
+        for(set(i, 0), i LT scene.count, inc(i),
+            trace('Processing scene index: ', i);
+            trace('Scene name: ', scene[get(i)].name);
+            trace('Scene type: ', scene[get(i)].type);
+            trace('Scene barangay: ', scene[get(i)].barangay);
+
+            if(isvalue(scene[get(i)].thumburl) 
+            AND scene[get(i)].skipthumb != true 
+            AND scene[get(i)].barangay == side_thumbs 
+            AND scene[get(i)].type == Other 
+            AND scene[get(i)].head == true,
+                trace('Adding scene to thumbarray_forside: ', scene[get(i)].name);
+                set(thumbarray_forside[get(thumbcount_forside)], get(scene[get(i)]));
+                set(scene[get(i)].sceneindex, get(i));
+                set(scene[get(i)].thumbindex, get(thumbcount_forside));
+                inc(thumbcount_forside);
+            );
+        );
+
+        trace('Total thumbnails to add: ', thumbcount_forside);
+
+        <!-- Check if thumbs are enabled in settings -->
+        if(skin_settings.thumbs == false,
+            set(layer[skin_btn_thumbs].visible, false);
+        ,
+            copy(thumbwidth, skin_settings.thumbs_width);
+            copy(thumbheight, skin_settings.thumbs_height);
+            copy(thumbpadding, skin_settings.thumbs_padding);
+            copy(thumbcrop, skin_settings.thumbs_crop);
+
+            calc(thumbxoffset, thumbwidth + thumbpadding);
+            calc(thumbxcenter, thumbxoffset * 0.5);
+            calc(thumbbarwidth, thumbxoffset * thumbcount_forside + thumbpadding);
+            calc(thumbbarheight, thumbpadding + thumbheight + thumbpadding);
+
+            trace('thumbwidth: ', thumbwidth);
+            trace('thumbheight: ', thumbheight);
+            trace('thumbpadding: ', thumbpadding);
+            trace('thumbcrop: ', thumbcrop);
+            trace('thumbxoffset: ', thumbxoffset);
+            trace('thumbxcenter: ', thumbxcenter);
+            trace('thumbbarwidth: ', thumbbarwidth);
+            trace('thumbbarheight: ', thumbbarheight);
+
+            <!-- Set up the thumbnail container layer -->
+            <!-- set(layer[scrollarea], width=get(thumbbarwidth), height=get(thumbbarheight));
+
+            calc(layer[scrollarea_scrollleft].y, thumbbarheight * 0.5);
+            calc(layer[scrollarea_scrollright].y, thumbbarheight * 0.5); -->
+
+            <!-- Add thumbnail layers -->
+            for(set(i, 0), i LT thumbcount_forside, inc(i),
+                copy(currentscene, thumbarray_forside[get(i)]);
+
+                calc(thumbname_side, 'skin_thumb_' + i);
+                addlayer(get(thumbname_side));
+
+                trace('Creating thumbnail layer: ', get(thumbname_side));
+
+                set(layer[get(thumbname_side)],
+                    url=get(currentscene.thumburl),
+                    keep=true,
+                    parent='scrollarea_Tawala_Other',
+                    bgroundedge=get(skin_settings.design_thumbborder_bgroundedge),
+                    align='top',
+                    crop=get(thumbcrop),
+                    width=get(thumbwidth),
+                    height=get(thumbheight),
+                    x=calc(thumbpadding + i * thumbxoffset),
+                    y=get(thumbpadding),
+                    linkedscene=get(currentscene.name),
+                    onclick='copy(layer[skin_thumbborder].parent, name); skin_loadscene(get(linkedscene), get(skin_settings.loadscene_blend));'
+                );
+
+                if(device.mobile,
+                    set(layer[get(thumbname_side)].scale, 1.5);
+                );
+
+                if(device.desktop,
+                    set(layer[get(thumbname_side)].scale, .85);
+                );
+
+                trace('Thumbnail layer properties set for: ', get(thumbname_side));
+                trace('URL: ', get(currentscene.thumburl));
+                trace('Keep: true');
+                trace('Parent: ' + get(parent));
+                trace('Background edge: ', get(skin_settings.design_thumbborder_bgroundedge));
+                trace('Align: top');
+                trace('Crop: ', get(thumbcrop));
+                trace('Width: ', get(thumbwidth));
+                trace('Height: ', get(thumbheight));
+                trace('X position: ', calc(thumbpadding + i * thumbxoffset));
+                trace('Y position: ', get(thumbpadding));
+                trace('Linked scene: ', get(currentscene.name));
+
+                set(currentscene, 
+                    thumbx=calc(thumbpadding + i * thumbxoffset + thumbxcenter),
+                    thumby=get(thumbpadding)
+                );
+
+                if(skin_settings.tooltips_thumbs,
+                    set(layer[get(thumbname_side)].tooltip, get(currentscene.place));
+                    layer[get(thumbname_side)].loadstyle(skin_tooltips);
+                    trace('Tooltip set for thumbnail: ', get(currentscene.place));
+                );
+
+                if(skin_settings.thumbs_text,
+                    calc(thumbtext, 'skin_thumbtext_' + i);
+                    addlayer(get(thumbtext));
+                    layer[get(thumbtext)].loadstyle(skin_thumbtext_style);
+                    set(layer[get(thumbtext)], 
+                        keep=true, 
+                        parent=get(thumbname_side), 
+                        html=get(currentscene.place),
+                        css='font-size:12px;color:white;font-family:Atma;text-align:center;',
+                        edge='centertop',
+                        y='-5%'
+                    );
+                    trace('Text layer properties set for: ', get(thumbtext));
+                );
+
+            );
+
+            if(thumbcount_forside == 1,
+                set(layer[scrollarea].align, 'top');
+                trace('Align set to top for single thumbnail.');
+            );
+        );
+    </action>   

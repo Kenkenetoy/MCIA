@@ -1,0 +1,64 @@
+<krpano bgcolor="0xFFFFFF">
+	
+	<preview type="grid(cube,64,64,512,0xEEEEEE,0xFFFFFF,0xFFFFFF)" />
+	
+	<include url="%VIEWER%/plugins/doubleclick_style.xml" />
+	
+	
+	<layer type="container" flowchildren="v" childflowspacing="20" childmargin="16">
+	
+		<layer type="text"
+			html="This is an editable textfield.[br]Pressing ENTER or ESC or clicking outside stops the editing."
+			bgcolor="0xFFFFFF" bgalpha="1.0" bgborder="1 0xAAAAAA"
+			editable="true"
+			editenterkey="stop"
+			/>
+		
+		<layer type="container" flowchildren="h" childflowspacing="8">
+			
+			<layer type="text"
+				html="This is an editable textfield.[br]Pressing ENTER makes a new line.[br]Pressing ESC or clicking outside stops the editing.[br][br][i]When making any changes here,[br]the content will be mirrored to another textfield.[/i]"
+				bgcolor="0xFFFFFF" bgalpha="1.0" bgborder="1 0xAAAAAA"
+				editable="true"
+				editenterkey="newline"
+				oneditchange="layer[mirror].html=html; layer[mirror].visible=true;"
+				oneditstop="layer[mirror].visible=false;"
+				/>
+				
+			<!-- mirror / show dynamically the changing input -->
+			<layer name="mirror" type="text"
+				css="color:#777777;" bgcolor="0xDDDDDD" bgborder="1 0xAAAAAA"
+				html=""
+				enabled="false"
+				visible="false"
+				/>
+				
+		</layer>
+		
+		<layer type="text"
+			html="This is an editable textfield.[br]Pressing SHIFT+ENTER makes a new line.[br]Pressing ENTER or ESC or clicking outside stops the editing."
+			bgcolor="0xFFFFFF" bgalpha="1.0" bgborder="1 0xAAAAAA"
+			editable="true"
+			editenterkey="shiftnewline"
+			/>
+			
+		<layer type="text" style="doubleclick"
+			bgcolor="0xDDDDDD" bgborder="1 0xAAAAAA"
+			html="This is a not-editable textfield,[br]but double-clicking can start editing..."
+			editenterkey="shiftnewline"
+			ondoubleclick="startediting(true); bgcolor=0xFFFFFF;"
+			oneditstop="bgcolor=0xDDDDDD;"
+			/>
+		
+	</layer>
+	
+	
+	<hotspot type="text" distorted="true" ath="15" atv="-10"
+			html="This is an editable textfield as [b]hotspot[/b].[br]Pressing ENTER makes a new line.[br]Pressing ESC or clicking outside stops the editing.[br]"
+			css="font-size:14px;"
+			bgcolor="0xFFFFFF" bgalpha="1.0" bgborder="1 0xAAAAAA"
+			editable="true"
+			editenterkey="newline"
+			/>
+	
+</krpano>

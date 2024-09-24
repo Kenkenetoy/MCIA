@@ -1,0 +1,295 @@
+<krpano>
+
+    <action name="draglayer">
+		copy(drag_currentx, x);
+		copy(drag_currenty, y);
+		copy(drag_stagex, mouse.stagex);
+		copy(drag_stagey, mouse.stagey);
+		indexoftxt(align_contains_right, get(align), 'right');
+		indexoftxt(align_contains_bottom, get(align), 'bottom');
+		calc(drag_align_x, align_contains_right GE 0 ? -1 : +1);
+		calc(drag_align_y, align_contains_bottom GE 0 ? -1 : +1);
+		asyncloop(pressed,
+			calc(x, drag_currentx + (mouse.stagex - drag_stagex)*drag_align_x);
+			calc(y, drag_currenty + (mouse.stagey - drag_stagey)*drag_align_y);
+		  );
+	</action>
+
+	<action name="draglayer_vertically_within_parent">
+		copy(drag_currenty, y);
+        copy(drag_currentx, x);
+
+		copy(drag_stagey, mouse.stagey);
+		copy(drag_stagex, mouse.stagex);
+
+        <!-- indexoftxt(align_contains_right, get(align), 'right');
+		indexoftxt(align_contains_bottom, get(align), 'bottom'); -->
+
+		calc(y_min, layer[get(parent)].pixelheight - pixelheight);
+		if(y_min LT 0,
+			asyncloop(pressed,
+				calc(y, drag_currenty + (mouse.stagey - drag_stagey));
+				clamp(y, get(y_min), 0);
+			  );
+		  );
+        
+		calc(x_min, layer[get(parent)].pixelheight - pixelheight);
+		if(x_min LT 0,
+			asyncloop(pressed,
+				calc(x, drag_currentx + (mouse.stagex - drag_stagex));
+				clamp(x, get(x_min), 0);
+			  );
+		  );
+	</action>
+
+	<events name="image_zoom_events"  onmousewheel="image_onmousewheel();" />
+
+	<action name="image_onmousewheel">
+		if(iszoom,
+			if(wheeldelta_touchscale GT 0,
+				<!-- touch zoom -->
+				if(startzoom,
+					set(startzoom,false);
+					copy(start_wheeldelta_touchscale, wheeldelta_touchscale);
+					copy(start_imagescale, layer[start-point].scale);
+				  );
+
+				div(tmp, wheeldelta_touchscale, start_wheeldelta_touchscale);
+				mul(layer[start-point].scale, start_imagescale, tmp);
+			  ,
+				<!-- mouse wheel zoom -->
+				mul(sit,get(wheeldelta),0.05);
+				mul(sit,layer[start-point].scale);
+				add(layer[start-point].scale,sit);
+			  );
+		);
+	</action>
+
+	<action name="slide_the_menu" scope="local" args="show">
+		if(show == null, if(layer[horizontal_offset_layer].state == 'closed', set(show,true), set(show,false)); );
+		if(show,
+			set(layer[horizontal_offset_layer].state, 'opened');
+			set(layer[side_menu_layer].bgcapture, 'true');
+			tween(layer[horizontal_offset_layer].x, 0, 0.5, easeOutQuint);
+			tween(layer[side_menu_layer].bgalpha, .8, 0.5, easeOutQuint);
+		  ,
+			set(layer[horizontal_offset_layer].state, 'closed');
+			set(layer[side_menu_layer].bgcapture, 'false');
+			set(layer[side_menu_layer].state, 'untoggled');
+			tween(layer[horizontal_offset_layer].x, -200, 0.5, easeOutQuint);
+			tween(layer[side_menu_layer].bgalpha, 0, 0.5, easeOutQuint);
+		);
+    </action>
+
+	<action name="change_UI" scope="local" args="UI">
+		if(UI == null, if(layer[canvas].state == 'UI_2', set(UI,true), set(UI,false)); );
+		if(UI,
+			set(layer[canvas].state, 'UI_1');
+			set(layer[back_layer].enabled, false);
+			set(layer[skin_layer].enabled, false);
+			tween(layer[back_layer].x, -100%, 2, easeInQuint);
+			tween(layer[skin_layer].y, -100%, 2, easeInQuint);
+			tween(layer[title_layer].x, -100%, 2, easeInQuint);
+
+			delayedcall(0.5,
+				<!-- tween(layer[horizontal_offset_layer].x, 0, 3, easeOutQuint); -->
+				tween(layer[text_layer].x, 2.5%, 3, easeOutQuint);
+				tween(layer[panglao_seal_layer].y, 0, 3, easeOutQuint);
+				tween(layer[fuck_search_container].y, 1.5%, 2, easeOutQuint);
+				<!-- tween(layer[SubUI].x, 0, 3, easeOutQuint); -->
+				loadscene('scene_home-page-panglaos',null,MERGE,thumb(.25));
+				<!-- skin_showthumbs(true); -->
+			);
+		  ,
+			set(layer[canvas].state, 'UI_2');
+			<!-- tween(layer[horizontal_offset_layer].x, -500, 3, easeOutQuint); -->
+			tween(layer[text_layer].x, -100%, 3, easeOutQuint);
+			tween(layer[panglao_seal_layer].y, -500, 3, easeOutQuint);
+			tween(layer[fuck_search_container].y, -100%, 2, easeOutQuint);
+			<!-- tween(layer[SubUI].x, -500, 3, easeOutQuint); -->
+			<!-- skin_showthumbs(false); -->
+
+			delayedcall(0.25,
+				tween(layer[skin_layer].y, 0%, 3, easeOutQuint);
+				tween(layer[title_layer].x, 0%, 3, easeOutQuint);
+			);
+
+			delayedcall(0.5,
+				tween(layer[back_layer].x, 2.5%, 2, easeOutQuint);
+				set(layer[skin_layer].enabled, true);
+				set(layer[back_layer].enabled, true);
+			);
+		);
+	</action>
+
+	<action name="select_barangay">
+	
+		<!-- The parameter 'selected_barangay' is passed to this action -->
+		set(global.selected_barangay, %1);
+		set(global.selected_place, %2);
+		remove_all_children(skin_thumbs);
+		skin_addthumbs(selected_barangay, selected_place );
+
+	</action>
+
+	<action name="remove_all_children">
+		<!-- Get the list of children of the layer -->
+		set(children, get(layer_name.children));
+		
+		trace("Number of children: " + get(children.length));
+		<!-- Loop through each child and remove it -->
+		for (i, 0, get(children.length) - 1, 1,
+			removechild(get(children[i]));
+		);
+
+		trace("All children removed.");
+	</action>
+
+	<action name="skin_addthumbs" scope="local" params="selected_barangay, selected_place">
+		<!-- build a global array of visible scene thumbnails -->
+		def(global.thumbarray, array);
+		set(thumbcount, 0);
+		for(set(i, 0), i LT scene.count, inc(i),
+			if(isvalue(scene[get(i)].thumburl) 
+			AND scene[get(i)].skipthumb != true 
+			AND scene[get(i)].barangay == selected_barangay 
+			AND scene[get(i)].place == selected_place,
+				<!-- link thumbarray[i1] to scene[i2] -->
+				set(thumbarray[get(thumbcount)], get(scene[get(i)]));
+				set(scene[get(i)].sceneindex, get(i));
+				set(scene[get(i)].thumbindex, get(thumbcount));
+
+				inc(thumbcount);
+			);
+		);
+		
+		if(skin_settings.thumbs == false,
+			set(layer[skin_btn_thumbs].visible,false);
+			,
+			copy(thumbwidth, skin_settings.thumbs_width);
+			copy(thumbheight, skin_settings.thumbs_height);
+			copy(thumbpadding, skin_settings.thumbs_padding);
+			copy(thumbcrop, skin_settings.thumbs_crop);
+
+			calc(thumbxoffset, thumbwidth + thumbpadding);
+			calc(thumbxcenter, thumbxoffset * 0.5);
+			calc(thumbbarwidth, thumbxoffset * thumbcount + thumbpadding);
+			calc(thumbbarheight, thumbpadding + thumbheight + thumbpadding);
+
+			if(skin_settings.thumbs_scrollindicator,
+				copy(layer[skin_thumbs_scrollindicator].y, thumbbarheight);
+				add(thumbbarheight, layer[skin_thumbs_scrollindicator].height);
+			);
+			
+			set(layer[skin_thumbs], width=get(thumbbarwidth), height=get(thumbbarheight) );
+
+			calc(layer[skin_thumbs_scrollleft].y, thumbbarheight * 0.5);
+			calc(layer[skin_thumbs_scrollright].y, thumbbarheight * 0.5);
+
+			for(set(i,0), i LT thumbcount, inc(i),
+			
+				copy(currentscene, thumbarray[get(i)]);
+
+				calc(thumbname, 'skin_thumb_' + i);
+				addlayer(get(thumbname));
+
+				set(layer[get(thumbname)],
+					url=get(currentscene.thumburl),
+					keep=true,
+					parent='skin_thumbs',
+					bgroundedge=get(skin_settings.design_thumbborder_bgroundedge),
+					align='lefttop',
+					crop=get(thumbcrop),
+					width=get(thumbwidth),
+					height=get(thumbheight),
+					x=calc(thumbpadding + i*thumbxoffset),
+					y=get(thumbpadding),
+					linkedscene=get(currentscene.name),
+					onclick='copy(layer[skin_thumbborder].parent, name); skin_loadscene(get(linkedscene),get(skin_settings.loadscene_blend));'
+				);
+
+					
+				set(currentscene, 
+					thumbx=calc(thumbpadding + i*thumbxoffset + thumbxcenter),
+					thumby=get(thumbpadding)
+				);
+					
+				if(skin_settings.tooltips_thumbs,
+					set(layer[get(thumbname)].tooltip, get(currentscene.title) );
+					layer[get(thumbname)].loadstyle(skin_tooltips);
+				);
+					
+				if(skin_settings.thumbs_text,
+					calc(thumbtext, 'skin_thumbtext_' + i);
+					addlayer(get(thumbtext));
+					layer[get(thumbtext)].loadstyle(skin_thumbtext_style);
+					set(layer[get(thumbtext)], 
+					keep=true, 
+					parent=get(thumbname), 
+					html=get(currentscene.title),
+					css=font-size:20px;color:white;font-family:Atma;text-align:center;,
+					edge=centertop, y=-10%
+					);
+				);
+
+			);
+			
+			if(thumbcount == 1,
+				set(layer[skin_thumbs].align, 'top');
+			);
+
+		);
+	</action>
+
+	<action name="skin_showthumbs" scope="local" args="show">
+		if(show == null, if(layer[skin_thumbs].state == 'closed', set(show,true), set(show,false)); );
+		if(show,
+			set(layer[skin_thumbs].state, 'opened');
+			tween(layer[skin_thumbs].alpha, 1.0, 0.25);
+			tween(layer[skin_scroll_layer].y, calc(-area.pixelheight + layer[skin_thumbs].height + layer[skin_scroll_layer].y_offset), 0.5, easeOutQuint);
+			set(layer[skin_thumbs_container].visible, true);
+			tween(layer[skin_thumbs_container].alpha, 1.0, 0.25);
+			tween(layer[skin_map].alpha, 0.0, 0.25, default, set(layer[skin_map].visible,false));
+			,
+			set(layer[skin_thumbs].state, 'closed');
+			tween(layer[skin_thumbs].alpha, 0.0, 0.25, easeOutQuint);
+			tween(layer[skin_scroll_layer].y, calc(-area.pixelheight + layer[skin_scroll_layer].y_offset), 0.5, easeOutQuint, set(layer[skin_thumbs_container].visible, false););
+		);
+	</action>
+	
+	<action name="toggle_grid_menu_layer">
+		if(layer[grid_menu_layer].state == 'toggled',
+			set(layer[grid_menu_layer].state, 'untoggled');
+			set(layer[grid_menu_layer].enable, false);
+			set(layer[grid_menu_layer].bgcapture, false);
+			tween(layer[grid_menu_layer].bgalpha, 0 , 0.5);	
+			tween(layer[grid_menu_scroller].x, -1000 , 0.5);
+			delayedcall(0.5,
+				set(layer[grid_menu_layer].visible, false);
+			)
+			<!-- open -->
+			,
+			set(layer[grid_menu_layer].state, 'toggled');
+			set(layer[grid_menu_layer].enable, true);
+			set(layer[grid_menu_layer].visible, true);
+			set(layer[grid_menu_layer].bgcapture, true);
+			set(layer[barangay_name_skin].url, calc('assets/skin/Barangay/' + get(html) + '.png'));
+			tween(layer[grid_menu_layer].bgalpha, 0.8 , 0.5);
+			tween(layer[grid_menu_scroller].x, 0 , 0.5);
+			
+		)
+	</action>
+
+
+<!-- scrap -->
+
+	    <action name="activebuttonarea">
+        trace('selected_area to be active: ', get(selected_area));
+        assignstyle(layer[get(selected_area)], 'shops_item_2_active');
+        set(global.selected_area, all);
+        activebutton();
+        <!-- set(layer[calc(get(not_selected_area)+'-layer')].visible, true); -->
+        trace('selected area: ', get(selected_area));
+    </action>
+
+</krpano>
