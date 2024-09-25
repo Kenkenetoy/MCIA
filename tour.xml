@@ -1250,7 +1250,12 @@
 
 	</scene>
 
-	<scene name="scene_2D_-_Camden" title="2D - Camden" onstart="" thumburl="panos/2D_-_Camden.tiles/thumb.jpg" lat="" lng="" alt="" heading="">
+	<scene name="scene_2D_-_Camden" title="2D - Camden" onstart="" thumburl="panos/2D_-_Camden.tiles/thumb.jpg"
+	engplace="Camden"
+	korplace="캠든" 
+	japplace="Camden" 
+	chnplace="Camden" 
+	terminal="terminal2" area="arrival" type="eatery" lat="" lng="" alt="" heading="">
 		
 		<control bouncinglimits="calc:image.cube ? true : false" />
 
